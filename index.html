@@ -741,7 +741,7 @@
       <div class="section-head">
         <div>
           <div class="section-title"><span class="emoji">✍️</span>문구 · 후킹 설정</div>
-          <div class="section-desc">첫 줄 3초 후킹 → 본문 2~3줄 → "링크는 첫 댓글" 구조로 생성됩니다.</div>
+          <div class="section-desc">첫 줄에서 멈추게 하고, 본문은 3~5줄로 짧게 끊어 씁니다. 본문엔 링크·댓글 유도 멘트를 넣지 않고, 링크는 첫 댓글에 자동으로 달아요.</div>
         </div>
       </div>
       <div class="two-col">
@@ -985,7 +985,7 @@ const SEED = {
       id:'r1', url:'https://www.threads.com/share/BAeJCoa3VE', handle:'@verybabba_mom',
       product:'열수축포장 비닐팩 대형 20매', price:12900, thumb:0, emoji:'👟',
       likes:12438, comments:318, reposts:1102, views:'38만',
-      hook:'다들 이거 쓰면서 왜 나만 몰랐지 싶었던 적 없음? ㅋㅋ 신발이나 물건들 싹 감싸서 드라이기로 슝 바람 쏘아주면 맞춤옷처럼 딱 붙어버리는 이거 미쳤음 ㄷㄷ',
+      hook:'신발장 문 열 때마다 먼지 앉은 거 보고 짜증났는데 / 이걸로 싹 감싸서 드라이기 쐈더니 그대로임 ㅋㅋ',
       summary:'수축포장 비닐 + 드라이기로 신발·잡화를 밀봉 보관하는 꿀팁. 먼지 차단 + 공간 절약 포인트.',
       coupang:'https://www.coupang.com/vp/products/1234567890', status:'wait'
     },
@@ -1044,11 +1044,11 @@ const SEED = {
     {id:5, name:'육아 살림 노트', handle:'@baby_home_note', status:'pending', goal:7, today:1, from:'11:00', to:'22:00', variant:'original', next:'토큰 필요'}
   ],
   logs: [
-    {time:'19:42', acct:'알뜰 주부 일기', product:'주방 후드 기름때 클리너 500ml', snip:'후드 필터, 새로 사지 마세요. 15분이면 원래 색 돌아옵니다...', link:'threads.com/@altteul_life/post/DgP1...', ok:true},
-    {time:'19:02', acct:'우리집 살림', product:'싱크대 아래 높이조절 정리 트레이 2P', snip:'싱크대 아래가 늘 엉망인 이유는 높이였어요...', link:'threads.com/@woori_salim/post/DgN8...', ok:true},
-    {time:'18:24', acct:'해담이 엄마', product:'욕실 곰팡이 제거 젤 120g', snip:'욕실 실리콘 곰팡이, 문지르지 마세요...', link:'threads.com/@haedam_mom/post/DgL2...', ok:true},
-    {time:'17:41', acct:'알뜰 주부 일기', product:'열수축포장 비닐팩 대형 20매', snip:'다들 이거 쓰면서 왜 나만 몰랐지 싶었던 적 없음?...', link:'threads.com/@altteul_life/post/DgK1...', ok:false, err:'미디어 처리 실패 (재시도 예약)'},
-    {time:'16:58', acct:'우리집 살림', product:'아이 신발장 제습 탈취 미니 팩 10P', snip:'아이 운동화에서 나는 그 냄새...', link:'threads.com/@woori_salim/post/DgJ7...', ok:true}
+    {time:'19:42', acct:'알뜰 주부 일기', product:'주방 후드 기름때 클리너 500ml', snip:'후드 필터 새로 사지 마. 15분 담가두면 원래 색 돌아옴...', link:'threads.com/@altteul_life/post/DgP1...', ok:true},
+    {time:'19:02', acct:'우리집 살림', product:'싱크대 아래 높이조절 정리 트레이 2P', snip:'싱크대 아래 정리가 안 된 이유는 높이였음...', link:'threads.com/@woori_salim/post/DgN8...', ok:true},
+    {time:'18:24', acct:'해담이 엄마', product:'욕실 곰팡이 제거 젤 120g', snip:'욕실 실리콘 곰팡이, 문지르지 마...', link:'threads.com/@haedam_mom/post/DgL2...', ok:true},
+    {time:'17:41', acct:'알뜰 주부 일기', product:'열수축포장 비닐팩 대형 20매', snip:'이거 살까 말까 하다가 그냥 샀는데...', link:'threads.com/@altteul_life/post/DgK1...', ok:false, err:'미디어 처리 실패 (재시도 예약)'},
+    {time:'16:58', acct:'우리집 살림', product:'아이 신발장 제습 탈취 미니 팩 10P', snip:'애 운동화 냄새, 신발장 문 열면 진동했음...', link:'threads.com/@woori_salim/post/DgJ7...', ok:true}
   ],
   style:'찐후기',
   disclosure: DISCLOSURE_DEFAULT,
@@ -1056,12 +1056,12 @@ const SEED = {
 };
 
 const STYLES = [
-  {id:'찐후기', name:'반말 찐후기형', desc:'"나만 몰랐어?" 친근한 반말로 공감부터. 맘카페 톤.', tag:'기본'},
-  {id:'살림고수', name:'살림 고수형', desc:'"이거 모르면 손해" 정보형. 숫자·시간으로 신뢰감.', tag:'정보'},
-  {id:'육아공감', name:'육아 공감형', desc:'새벽·등원 같은 생활 장면으로 "나만 이래?" 공감.', tag:'공감'},
-  {id:'질문유도', name:'질문 유도형', desc:'질문으로 시작해 다른 사람 얘기를 끌어내요.', tag:'질문'},
-  {id:'시크', name:'시크 담백형', desc:'말수 적은 반말. 짧고 단정하게, 감정 없이.', tag:'담백'},
-  {id:'비교반전', name:'비교 반전형', desc:'"A 말고 B" 의외성으로 스크롤을 멈추게.', tag:'후킹'},
+  {id:'찐후기', name:'반말 찐후기형', desc:'친구한테 말하듯 담담하게. "살까 말까 하다가 그냥 샀는데"로 시작.', tag:'기본'},
+  {id:'살림고수', name:'살림 고수형', desc:'자랑 없이 바뀐 동작만. "집안일 하나가 통째로 사라짐".', tag:'정보'},
+  {id:'육아공감', name:'육아 공감형', desc:'등원 10분 전, 새벽 세탁 같은 장면 하나로 시작해요.', tag:'공감'},
+  {id:'질문유도', name:'질문 유도형', desc:'답이 갈리는 질문 하나 던지고 내 답을 먼저 씀.', tag:'질문'},
+  {id:'시크', name:'시크 담백형', desc:'말수 적은 반말. "샀다. 잘 쓴다." 감정 없이 끊어요.', tag:'담백'},
+  {id:'비교반전', name:'비교 반전형', desc:'"비싼 거 사지 마"로 끊고 가격·이유로 뒤집기.', tag:'후킹'},
   {id:'랜덤', name:'랜덤 믹스', desc:'매 발행마다 6가지 톤을 자동으로 섞어요.', tag:'자동'}
 ];
 
@@ -1669,71 +1669,57 @@ function onDisclosure(){
 }
 function pickProduct(){
   const p = state.recommendations.find(r=>r.status!=='passed');
-  return p || {product:'열수축포장 비닐팩 대형 20매', price:12900, hook:'다들 이거 쓰면서 왜 나만 몰랐지 싶었던 적 없음? ㅋㅋ'};
+  return p || {product:'열수축포장 비닐팩 대형 20매', price:12900};
 }
-const HOOKS = {
+/* 미리보기 샘플 — 실제 발행 엔진(bot/copywriter.py) 템플릿과 같은 톤. 본문에 댓글·링크 유도 없음. */
+const NL = String.fromCharCode(10);
+const PREVIEW = {
   '찐후기':[
-    '이거 모르고 몇 달째 손해 보고 있었어 ㅠㅠ',
-    '다들 이거 쓰면서 왜 나만 몰랐지 싶었던 적 없음?',
-    '솔직히 반신반의했는데 하루 쓰고 바로 인정했어.'
+    ['이거 살까 말까 하다가 그냥 샀는데','','첫날엔 뭐가 좋은지 몰랐음','일주일 쓰고 나서 없으면 안 되는 쪽이 됨','','지금은 하나 더 살까 고민 중'],
+    ['별 기대 안 하고 샀는데','','포장 뜯자마자 써봄','생각보다 잘 맞아서 다음 날 하나 더 삼','','이 정도면 산 값은 함'],
+    ['작년에 샀으면 더 좋았을 걸','','현관 정리하다가 매번 하던 일이 있었음','이거 두고 나서 그 일을 안 함','','별거 아닌데 매일 씀']
   ],
   '살림고수':[
-    '이거 모르고 계속 손해 보고 있었어. 계산해보니 아깝더라.',
-    '한 번 사면 몇 년 쓰는 물건인데, 고르는 기준이 틀렸었음.',
-    '값은 얼마 안 했는데, 바뀐 건 그 이상이었음.'
+    ['집안일 하나가 통째로 사라짐','','현관 정리하다가 신발 밑에 먼지 보고 그만뒀는데','이거 쓰고 나서 그 일을 안 함','','값보다 빠진 일이 큼'],
+    ['정리 순서 바꾸는 것보다 도구 하나 바꾸는 게 빨랐음','','손이 가는 자리에 두니까 정리하라는 말을 안 해도 됨','','결론은 도구가 반은 함'],
+    ['한 번 사면 몇 년 쓰는 물건은 고르는 기준이 중요함','','싼 걸로 세 번 사는 것보다 한 번 제대로 사는 게 남음','','다음에도 같은 걸 산다']
   ],
   '육아공감':[
-    '새벽 세 시에 젖은 소매 들고 세탁기 앞에 서 본 사람?',
-    '등원 10분 전에 또 옷 갈아입힌 엄마 나뿐이야?',
-    '애기 물건은 왜 항상 두 개씩 필요한 거야.'
+    ['등원 10분 전에 옷 갈아입히는 집 또 있지','','소매 젖은 채로 나가면 하루 종일 신경 쓰임','이거 두고 나서 그냥 갈아 끼우면 끝','','울 애 말고 내가 편해짐'],
+    ['새벽에 젖은 소매 들고 세탁기 앞에 서 봄','','그 새벽 세탁이 없어짐','젖으면 갈아 끼우면 끝이라 마음이 편함','','이건 진작 살 걸'],
+    ['애 물건은 왜 항상 두 개씩 필요한지 모르겠음','','하나는 쓰고 하나는 빨래통에 있음','이거 두고 나서 그 순환이 끊김','','아침이 조금 짧아짐']
   ],
   '질문유도':[
-    '이거 다들 어떻게 쓰고 있음? 나만 이렇게 쓰는 거야?',
-    '혹시 이거 쓰는 사람 있음? 궁금해서 물어보는 거야.',
-    '이런 거 살 때 다들 뭐 보고 고름?'
+    ['이런 거 살 때 뭐 보고 고름? 나는 결국 제일 싼 거 삼','','비싼 거 사놓고 안 쓰는 게 제일 아까워서','이번엔 이걸로 정착함','','너네 집은 뭐 씀?'],
+    ['이거 없이 어떻게 살았지 싶은 물건 있어?','','나는 이거 쓰고 나서 그 자리 정리를 안 해도 됨','','다른 집은 어떤지 궁금함'],
+    ['이거 쓰는 집 있나? 나만 이렇게 쓰는 건가 싶어서','','처음엔 반신반의했는데 지금은 먼저 손이 감','','다른 거 쓰는 집 있으면 알려줘']
   ],
   '시크':[
-    '3년 쓴 거 버리고 바꿨다. 후회 없음.',
-    '그냥 샀다. 잘 쓰고 있다.',
-    '이거 하나로 정리 끝. 더 안 산다.'
+    ['샀다. 잘 쓴다.','','3년 쓴 거 버리고 바꿈','정리 시간이 줄었다. 그게 다임','','다른 건 안 바꿈'],
+    ['정리 끝. 더 안 산다.','','설명은 필요 없음','매일 쓰는 물건이면 이 정도면 충분','','한 번 사면 오래 씀'],
+    ['3년 쓴 거 버리고 바꿈. 후회 없음.','','같은 자리에 두고 매일 씀','','끝.']
   ],
   '비교반전':[
-    '비싼 거 사지 마. 그 돈이면 이거 두 개 산다.',
-    '비싼 거 사고 후회한 사람 여기 있음.',
-    '원래 쓰던 거 다 버렸어. 이거 알고 나서.'
+    ['비싼 거 사지 마. 그 돈이면 이거 두 개임','','여러 개 써봤는데 결국 이것만 남음','이유는 단순함. 안 비싸고 안 망가짐','','돈 아낀 게 제일 만족스러움'],
+    ['수납박스 사고 후회한 사람 여기 있음','','버티는 힘은 비싼 거랑 비슷한데 값은 반','','비싼 게 답은 아니었음'],
+    ['원래 쓰던 거 다 처분함. 이거 알고 나서','','싸서 산 건데 비싼 거랑 차이를 못 느끼겠음','','다음에도 이거 삼']
   ]
-};
-const BODIES = [
-  ['비닐에 싹 감싸서 드라이기로 슝~ 바람 쏘아주면', '맞춤옷처럼 딱 붙어버림. 먼지도 안 타고 수납도 깔끔 ✨', '집 정리할 때 진짜 꿀템이라 몇 개 쟁여둠 ㅠㅠ'],
-  ['신발 · 잡화 · 케이블까지 아무거나 감싸서', '드라이기 10초만 쏘면 밀봉 완료. 물 묻어도 끄떡없음.', '이사 준비하는 사람한테도 강추임.'],
-  ['계절 지난 신발 먼지 쌓이는 게 싫어서 찾다가', '이걸로 감싸두니까 신발장이 그대로임.', '가격도 20매에 만 원대라 부담 없음.']
-];
-/* 스레드 본문 마지막 줄 클릭 유도 — 엔진(COPYWRITER CTAS)과 같은 반말 문구 */
-const CTAS = {
-  '찐후기':['어디 건지 묻는 사람 많아서 첫 댓글에 좌표 찍어둠 👇','궁금할까 봐 첫 댓글에 링크만 딱 둠 👇','사러 갈 사람은 첫 댓글 확인해 👇'],
-  '살림고수':['오늘 가격인지 확인해 봐. 첫 댓글에 링크 있음 👇','구성·가격 첫 댓글에 정리해둠 👇','이 조건 언제까지인지 모르니까 첫 댓글 링크 봐 👇'],
-  '육아공감':['이거 어디서 샀냐고 해서 첫 댓글에 둠 👇','필요한 사람은 첫 댓글 확인 👇','묻는 사람 많아서 첫 댓글에 남겨둠 👇'],
-  '질문유도':['이거 뭐냐고 묻길래 첫 댓글에 링크 둠 👇','궁금한 사람은 첫 댓글 봐 👇','써본 후기는 첫 댓글 링크에 있음 👇'],
-  '시크':['링크는 첫 댓글. 👇','필요한 사람만 첫 댓글. 👇','첫 댓글에 링크. 👇'],
-  '비교반전':['비교해볼 링크 첫 댓글에 있음 👇','왜 이건지 궁금하면 첫 댓글 봐 👇','링크 첫 댓글에 있음 👇']
 };
 function buildPreview(force){
   if(force) previewTick++;
   const p = pickProduct();
-  const styleKeys = Object.keys(HOOKS);
+  const styleKeys = Object.keys(PREVIEW);
   const stylePool = state.style==='랜덤' ? styleKeys[Math.floor(Math.random()*styleKeys.length)] : state.style;
-  const hooks = HOOKS[stylePool] || HOOKS['찐후기'];
-  const hook = hooks[previewTick % hooks.length];
-  const body = BODIES[previewTick % BODIES.length];
-  const ctas = CTAS[stylePool] || CTAS['찐후기'];
-  const cta = ctas[previewTick % ctas.length];
+  const posts = PREVIEW[stylePool] || PREVIEW['찐후기'];
+  const lines = posts[previewTick % posts.length];
+  const hook = lines[0];
+  const rest = lines.slice(1);
   const acct = state.accounts.find(a=>a.status==='connected') || state.accounts[0];
 
   $('#prevAvatar').textContent = acct.name[0] || '원';
   $('#prevUser').innerHTML = `${esc(acct.name)} <span class="badge">✓</span> <span class="thread-time">방금</span>`;
-  $('#prevBody').innerHTML =
-    `<span class="hook">${esc(hook)}</span>\n\n${esc(body[0])}\n${esc(body[1])}\n${esc(body[2])}\n\n` +
-    esc(cta);
+  $('#prevBody').innerHTML = `<span class="hook">${esc(hook)}</span>` +
+    rest.map(line => NL + esc(line)).join('');
   /* 실제 발행 엔진(bot/copywriter.py build_comment)과 같은 순서: 대가성 문구 → 상품명 → 링크 */
   const disc = String(state.disclosure || '').trim();
   $('#prevReply').innerHTML =
