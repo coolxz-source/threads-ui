@@ -394,7 +394,7 @@
   .reply-avatar{width:26px;height:26px;border-radius:50%;flex:0 0 26px;background:#232838;display:grid;place-items:center;font-size:10px;color:#a7b0c4}
   .reply-body{font-size:11.5px;line-height:1.65;color:#b9c1d2}
   .reply-body b{color:#8ec2ff;font-weight:650;word-break:break-all}
-  .reply-body .disc{display:block;margin-top:5px;font-size:10px;color:#7b8399;line-height:1.5}
+  .reply-body .disc{display:block;margin:0 0 6px;font-size:10px;color:#7b8399;line-height:1.5}
 
   /* log table */
   .log{border:1px solid var(--line);border-radius:16px;overflow:hidden}
@@ -586,8 +586,8 @@
 
     <div class="sidebar-foot">
       <div class="engine-card">
-        <div class="engine-row"><span class="dot"></span>발행 엔진 정상</div>
-        <div class="engine-meta">다음 발행 <b style="color:#aeb7c9">20:40</b> · 계정 3<br>오늘 21 / 35건 완료</div>
+        <div class="engine-row" id="engineRow"><span class="dot"></span>발행 엔진 정상</div>
+        <div class="engine-meta" id="engineMeta">다음 발행 <b style="color:#aeb7c9">-</b><br>연결된 계정 없음</div>
       </div>
       <div class="ver">v1.0 · Google Sheets + Actions</div>
     </div>
@@ -631,8 +631,8 @@
         </div>
         <div class="stat">
           <div class="k"><svg width="12" height="12" style="color:#86efac"><use href="#i-check"/></svg>오늘 발행</div>
-          <div class="v">21<small>/ 35건</small></div>
-          <div class="bar"><i style="width:60%"></i></div>
+          <div class="v" id="statToday">0<small>/ 0건</small></div>
+          <div class="bar" id="statTodayBar"><i style="width:0%"></i></div>
         </div>
         <div class="stat">
           <div class="k"><svg width="12" height="12" style="color:#8ec2ff"><use href="#i-box"/></svg>활성 상품</div>
@@ -641,8 +641,8 @@
         </div>
         <div class="stat">
           <div class="k"><svg width="12" height="12" style="color:#c4b5fd"><use href="#i-clock"/></svg>다음 발행</div>
-          <div class="v" style="font-size:17px">20:40</div>
-          <div class="sub">계정 3 · 미세 크롭 2%</div>
+          <div class="v" id="statNext" style="font-size:17px">-</div>
+          <div class="sub" id="statNextSub">연결된 계정 없음</div>
         </div>
       </div>
 
@@ -755,7 +755,7 @@
               <span class="status-badge wait">필수</span>
             </div>
             <textarea class="ta" id="disclosure" oninput="onDisclosure()">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</textarea>
-            <div class="hint"><span>첫 댓글 마지막 줄에 자동으로 붙어요.</span><span id="discCount">46 / 200</span></div>
+            <div class="hint"><span>첫 댓글 맨 첫 줄에 자동으로 붙어요.</span><span id="discCount">46 / 200</span></div>
             <div class="rec-tip" style="margin-top:10px">
               <svg><use href="#i-shield"/></svg>
               <div>문구를 비우면 발행이 중단돼요. 쿠팡 파트너스 규정상 대가성 문구는 반드시 표시해야 합니다.</div>
@@ -1012,8 +1012,11 @@ const SEED = {
 const STYLES = [
   {id:'찐후기', name:'반말 찐후기형', desc:'"나만 몰랐어?" 친근한 반말로 공감부터. 맘카페 톤.', tag:'기본'},
   {id:'살림고수', name:'살림 고수형', desc:'"이거 모르면 손해" 정보형. 숫자·시간으로 신뢰감.', tag:'정보'},
+  {id:'육아공감', name:'육아 공감형', desc:'새벽·등원 같은 생활 장면으로 "나만 이래?" 공감.', tag:'공감'},
+  {id:'질문유도', name:'질문 유도형', desc:'질문으로 시작해 다른 사람 얘기를 끌어내요.', tag:'질문'},
+  {id:'시크', name:'시크 담백형', desc:'말수 적은 반말. 짧고 단정하게, 감정 없이.', tag:'담백'},
   {id:'비교반전', name:'비교 반전형', desc:'"A 말고 B" 의외성으로 스크롤을 멈추게.', tag:'후킹'},
-  {id:'랜덤', name:'랜덤 믹스', desc:'매 발행마다 3가지 톤을 자동으로 섞어요.', tag:'자동'}
+  {id:'랜덤', name:'랜덤 믹스', desc:'매 발행마다 6가지 톤을 자동으로 섞어요.', tag:'자동'}
 ];
 
 let state = load();
@@ -1374,6 +1377,7 @@ function renderAccounts(){
       </div>
     </div>`;
   }).join('');
+  renderStats();
 }
 function setAcct(i, key, val){
   state.accounts[i][key]=val; save(); renderAccounts();
@@ -1384,6 +1388,75 @@ function setAcct(i, key, val){
     API.call('saveAccount', {no:a.no || a.id || i+1, fields})
       .catch(err=>toast('시트 저장 실패: ' + err.message));
   }
+}
+
+/* ---------- 상단·사이드바 통계 (실제 계정/로그 기준) ---------- */
+function connectedAccounts(){
+  return (state.accounts||[]).filter(a=>a.status==='connected' && a.active!==false);
+}
+function todayCount(a){
+  /* 발행 수치는 '그 날짜'에만 유효 — 자정이 지나면 어제 숫자를 오늘로 쓰지 않는다. */
+  if(state.todayDate && state.todayDate !== isoToday()) return 0;
+  return Number(a.today||0) || 0;
+}
+function minutesOf(hhmm){
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String(hhmm||'').trim());
+  return m ? Number(m[1])*60 + Number(m[2]) : null;
+}
+function fmtHHMM(min){
+  return String(Math.floor(min/60)%24).padStart(2,'0') + ':' + String(min%60).padStart(2,'0');
+}
+/* 다음 발행 = 연결된 계정의 활동 시간 안에서 20분 주기로 돌아오는 가장 가까운 슬롯 */
+function nextPublishAt(){
+  const accts = connectedAccounts();
+  if(!accts.length) return null;
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  let best = null;
+  accts.forEach(a=>{
+    const from = minutesOf(a.from), to = minutesOf(a.to);
+    if(from===null || to===null) return;
+    let cand;
+    if(nowMin < from) cand = {min:from, day:0};
+    else if(nowMin <= to){
+      const slot = Math.ceil((nowMin+1)/20)*20;
+      cand = slot <= to ? {min:slot, day:0} : {min:from, day:1};
+    } else cand = {min:from, day:1};
+    if(!best || cand.day < best.day || (cand.day===best.day && cand.min < best.min)) best = cand;
+  });
+  return best;
+}
+function variantLabel(v){ return v==='crop' ? '크롭 2%' : v==='flip' ? '반전' : '원본'; }
+function renderStats(){
+  const accts = connectedAccounts();
+  const done = accts.reduce((s,a)=>s+todayCount(a), 0);
+  const goal = accts.reduce((s,a)=>s+(Number(a.goal)||0), 0);
+
+  const todayEl = $('#statToday');
+  if(todayEl) todayEl.innerHTML = `${done}<small>/ ${goal}건</small>`;
+  const bar = $('#statTodayBar i');
+  if(bar) bar.style.width = (goal>0 ? Math.min(100, Math.round(done/goal*100)) : 0) + '%';
+
+  const next = nextPublishAt();
+  const nextLabel = next ? (next.day ? '내일 ' : '') + fmtHHMM(next.min) : '-';
+  const nextEl = $('#statNext');
+  if(nextEl){ nextEl.textContent = nextLabel; nextEl.style.fontSize = (next && next.day) ? '16px' : '17px'; }
+  const nextSub = $('#statNextSub');
+  if(nextSub){
+    if(!accts.length) nextSub.textContent = '연결된 계정 없음';
+    else{
+      const names = [];
+      accts.forEach(a=>{ const l = variantLabel(a.variant); if(names.indexOf(l)<0) names.push(l); });
+      nextSub.textContent = `계정 ${accts.length}개 · ${names.join(' · ')}`;
+    }
+  }
+
+  const meta = $('#engineMeta');
+  if(meta) meta.innerHTML = next
+    ? `다음 발행 <b style="color:#aeb7c9">${nextLabel}</b> · 계정 ${accts.length}<br>오늘 ${done} / ${goal}건 완료`
+    : `다음 발행 <b style="color:#aeb7c9">-</b> · 계정 0<br>연결된 계정 없음`;
+  const row = $('#engineRow');
+  if(row) row.innerHTML = `<span class="dot"></span>${accts.length ? '발행 엔진 정상' : '발행 엔진 대기 · 연결된 계정 없음'}`;
 }
 
 /* ---------- styles / preview ---------- */
@@ -1421,6 +1494,21 @@ const HOOKS = {
     '수납공간 2배로 늘리는 방법, 돈 1만원도 안 듭니다.',
     '먼지 차단 99% · 재사용 가능 · 20매에 이 가격이면 반칙이죠.'
   ],
+  '육아공감':[
+    '새벽 세 시에 젖은 소매 들고 세탁기 앞에 서 본 사람?',
+    '등원 10분 전에 또 옷 갈아입힌 엄마 나뿐이야?',
+    '애기 물건은 왜 항상 두 개씩 필요한 거야.'
+  ],
+  '질문유도':[
+    '이거 다들 어떻게 쓰고 있음? 나만 이렇게 쓰는 거야?',
+    '혹시 이거 쓰는 사람 있음? 궁금해서 물어보는 거야.',
+    '이런 거 살 때 다들 뭐 보고 고름?'
+  ],
+  '시크':[
+    '3년 쓴 거 버리고 바꿨다. 후회 없음.',
+    '그냥 샀다. 잘 쓰고 있다.',
+    '이거 하나로 정리 끝. 더 안 산다.'
+  ],
   '비교반전':[
     '신발장 정리, 수납박스 사지 마세요. 이게 더 싸고 편합니다.',
     '드라이기로 붙인다고? 처음엔 저도 웃었습니다.',
@@ -1435,7 +1523,8 @@ const BODIES = [
 function buildPreview(force){
   if(force) previewTick++;
   const p = pickProduct();
-  const stylePool = state.style==='랜덤' ? Object.keys(HOOKS)[Math.floor(Math.random()*3)] : state.style;
+  const styleKeys = Object.keys(HOOKS);
+  const stylePool = state.style==='랜덤' ? styleKeys[Math.floor(Math.random()*styleKeys.length)] : state.style;
   const hooks = HOOKS[stylePool] || HOOKS['찐후기'];
   const hook = hooks[previewTick % hooks.length];
   const body = BODIES[previewTick % BODIES.length];
@@ -1446,10 +1535,14 @@ function buildPreview(force){
   $('#prevBody').innerHTML =
     `<span class="hook">${esc(hook)}</span>\n\n${esc(body[0])}\n${esc(body[1])}\n${esc(body[2])}\n\n` +
     `링크는 첫 댓글에 남겨둘게요 👇`;
+  /* 실제 발행 엔진(bot/copywriter.py build_comment)과 같은 순서: 대가성 문구 → 상품명 → 링크 */
+  const disc = String(state.disclosure || '').trim();
   $('#prevReply').innerHTML =
-    `<b>${esc(p.product)}</b> ${p.price?`· ${p.price.toLocaleString('ko-KR')}원`:''}\n` +
-    `👉 https://link.coupang.com/a/hvQ2x1\n` +
-    `<span class="disc">${esc(state.disclosure)}</span>`;
+    (disc
+      ? `<span class="disc">${esc(disc)}</span>`
+      : `<span class="disc" style="color:#ff93a5">대가성 문구가 비어 있어요 · 발행 중단</span>`) +
+    `<b>${esc(p.product)}</b><br>` +
+    `👉 https://link.coupang.com/a/hvQ2x1`;
 
   const n = state.disclosure.length;
   $('#discCount').textContent = n===0 ? '비우면 발행 중단' : `${n} / 200`;
@@ -1515,10 +1608,12 @@ async function syncBackend(){
         id:a.no, no:a.no, name:a.name || ('계정 '+a.no),
         handle:'@' + (a.userId || ('account'+a.no)),
         status:(a.tokenStatus==='연결'?'connected':'pending'),
+        active:!(a.active===false || a.active===0 || String(a.active).toLowerCase()==='false'),
         goal:Number(a.goal||7), today:counts[a.no]||0,
         from:a.start||'08:00', to:a.end||'23:00', variant:a.variant||'original',
         next:'자동'
       }));
+      state.todayDate = today;   /* 이 발행 수치가 '오늘' 것임을 함께 기억 */
     }
     if(Array.isArray(data.logs)){
       state.logs = data.logs.slice(0,30).map(l=>({time:String(l.ts||'').slice(11,16),
@@ -1543,9 +1638,12 @@ function boot(){
   $('#gasUrl').value = state.gasUrl || store.get('tc.gasUrl') || GAS_DEFAULT_URL || '';
   $('#gasToken').value = store.get('tc.token') || '';
   $('#disclosure').value = state.disclosure;
+  if(!state.todayDate){ state.todayDate = isoToday(); save(); }   /* 데모 수치도 오늘 날짜로만 인정 */
   renderRec(); renderPool(); renderAccounts(); renderStyles(); renderLogs(); buildPreview();
   if(API.configured()){ $('#gasStatus').className='status-badge ok'; $('#gasStatus').textContent='연결됨'; }
   syncBackend();
+  /* 자정을 넘겨도 '오늘 발행 0건'·'다음 발행'이 바로 맞아떨어지도록 1분마다 다시 계산 */
+  setInterval(()=>{ if(!document.hidden) renderStats(); }, 60000);
 }
 boot();
 </script>
