@@ -284,8 +284,8 @@
   .spacer{flex:1}
 
   .pool{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:rgba(255,255,255,.018)}
-  .pool-head{display:grid;grid-template-columns:44px minmax(0,1fr) 74px 88px 72px 44px;gap:14px;padding:10px 15px;font-size:11px;font-weight:700;color:var(--dim);background:rgba(255,255,255,.026);border-bottom:1px solid var(--line)}
-  .pool-row{display:grid;grid-template-columns:44px minmax(0,1fr) 74px 88px 72px 44px;gap:14px;padding:13px 15px;align-items:center;border-bottom:1px solid rgba(255,255,255,.045);transition:background .12s ease}
+  .pool-head{display:grid;grid-template-columns:44px minmax(0,1fr) 74px 88px 72px 84px;gap:14px;padding:10px 15px;font-size:11px;font-weight:700;color:var(--dim);background:rgba(255,255,255,.026);border-bottom:1px solid var(--line)}
+  .pool-row{display:grid;grid-template-columns:44px minmax(0,1fr) 74px 88px 72px 84px;gap:14px;padding:13px 15px;align-items:center;border-bottom:1px solid rgba(255,255,255,.045);transition:background .12s ease}
   .pool-row:last-child{border-bottom:0}
   .pool-row:hover{background:rgba(255,255,255,.026)}
   .pool-row.off{opacity:.48}
@@ -302,6 +302,9 @@
   .status-badge.wait{background:rgba(251,191,36,.1);color:#f3cf6b;border:1px solid rgba(251,191,36,.2)}
   .status-badge.fail{background:rgba(255,77,109,.1);color:#ff93a5;border:1px solid rgba(255,77,109,.2)}
   .status-badge.ok{background:rgba(74,222,128,.1);color:#86efac;border:1px solid rgba(74,222,128,.2)}
+  .status-badge.as-btn{cursor:pointer;transition:filter .15s ease}
+  .status-badge.as-btn:hover{filter:brightness(1.18)}
+  .status-badge.as-btn:active{transform:translateY(1px)}
 
   .switch{position:relative;display:inline-flex;width:34px;height:19px;flex:0 0 34px}
   .switch input{opacity:0;width:0;height:0;position:absolute}
@@ -408,6 +411,7 @@
   .log-prod{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .log-snip{font-size:11px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .log-link{font-size:10.5px;color:#8ec2ff;display:inline-flex;align-items:center;gap:3px}
+  .log-err{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:10.5px;line-height:1.45;color:#ff93a5;word-break:keep-all}
 
   .setting-row{display:flex;gap:9px;align-items:flex-end;flex-wrap:wrap}
   .setting-row .grow{flex:1;min-width:220px}
@@ -454,7 +458,7 @@
   /* responsive */
   @media (max-width:1180px){
     .stats{grid-template-columns:repeat(2,1fr)}
-    .pool-head,.pool-row{grid-template-columns:40px minmax(0,1.6fr) 92px 84px 74px}
+    .pool-head,.pool-row{grid-template-columns:40px minmax(0,1.6fr) 92px 84px 84px}
     .pool-head .col-mid,.pool-row .col-mid{display:none}
   }
   @media (max-width:1020px){
@@ -499,7 +503,7 @@
     .rec-actions{justify-content:space-between}
     .rec-actions .btn{flex:1}
     .pool-head{display:none}
-    .pool-row{grid-template-columns:34px minmax(0,1fr) 70px;gap:9px;padding:12px}
+    .pool-row{grid-template-columns:34px minmax(0,1fr) 80px;gap:9px;padding:12px}
     .pool-row .col-status,.pool-row .col-mid{display:none}
     .log-head{display:none}
     .log-row{grid-template-columns:1fr auto;gap:4px 10px;padding:11px 12px}
@@ -574,7 +578,7 @@
         <svg class="ic"><use href="#i-box"/></svg>상품 풀<span class="nav-badge neutral" id="navPoolCount">12</span>
       </button>
       <button class="nav-btn" data-tab="accounts">
-        <svg class="ic"><use href="#i-users"/></svg>계정 관리<span class="nav-badge neutral">5</span>
+        <svg class="ic"><use href="#i-users"/></svg>계정 관리<span class="nav-badge neutral" id="navAcctCount">-</span>
       </button>
       <button class="nav-btn" data-tab="copy">
         <svg class="ic"><use href="#i-pen"/></svg>문구 · 후킹
@@ -687,7 +691,7 @@
 
       <div class="pool">
         <div class="pool-head">
-          <div>활성</div><div>상품 · 링크</div><div class="col-mid">사용</div><div class="col-mid">최근 발행</div><div class="col-status">상태</div><div></div>
+          <div>활성</div><div>상품 · 링크</div><div class="col-mid">사용</div><div class="col-mid">최근 발행</div><div class="col-status">상태</div><div>관리</div>
         </div>
         <div id="poolList"></div>
       </div>
@@ -700,7 +704,7 @@
           <div class="section-title"><span class="emoji">👥</span>계정 관리 <span class="count-chip">최대 5개</span></div>
           <div class="section-desc">계정마다 활동 시간대를 다르게 두면 자연스럽게 엇갈려 발행돼요.</div>
         </div>
-        <span class="pill live"><span class="dot"></span>3개 계정 연결됨</span>
+        <span class="pill live" id="acctPill" title="실제로 연결된 Threads 계정 수"><span class="dot"></span><span id="acctPillText">계정 확인 중</span></span>
       </div>
 
       <div class="card" style="margin-bottom:14px">
@@ -803,8 +807,8 @@
           <div class="section-title"><span class="emoji">📊</span>발행 로그 · 설정</div>
           <div class="section-desc">최근 7일 발행 내역과 백엔드 연결 상태를 확인합니다.</div>
         </div>
-        <div class="seg">
-          <button class="on">오늘</button><button onclick="toast('지난 7일 로그를 불러옵니다')">7일</button><button onclick="toast('전체 로그를 불러옵니다')">전체</button>
+        <div class="seg" id="logRangeSeg">
+          <button class="on" data-r="today" onclick="setLogRange('today')">오늘</button><button data-r="7d" onclick="setLogRange('7d')">7일</button><button data-r="all" onclick="setLogRange('all')">전체</button>
         </div>
       </div>
 
@@ -821,7 +825,7 @@
           </div>
           <div style="display:grid;gap:7px">
             <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#aeb7c9">쿠팡 파트너스 Access / Secret Key</span><span class="status-badge ok">등록됨</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#aeb7c9">Threads Access Token (5계정)</span><span class="status-badge ok">3 / 5</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#aeb7c9">Threads Access Token</span><span class="status-badge ok" id="tokenRatio">- / 5</span></div>
             <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:#aeb7c9">Gemini API Key</span><span class="status-badge ok">등록됨</span></div>
           </div>
           <div class="secret-note">
@@ -892,8 +896,50 @@
   </div>
 </div>
 
-<div class="toast" id="toast"><svg><use href="#i-check"/></svg><span id="toastMsg"></span></div>
+<!-- edit product modal -->
+<div class="backdrop" id="editModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">상품 수정</div>
+        <div class="modal-sub">고친 내용은 상품 풀 시트에도 바로 반영돼요.</div>
+      </div>
+      <button class="close" onclick="closeEdit()"><svg width="15" height="15"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>상품명 <span style="color:#6f778c">(스레드 첫 줄로 들어가는 이름)</span></label>
+        <input class="inp" id="eName" placeholder="예) 열수축포장 비닐팩 대형 20매">
+      </div>
+      <div class="field">
+        <label>스레드 링크</label>
+        <input class="inp" id="eThreads" placeholder="https://www.threads.com/@계정/post/...">
+      </div>
+      <div class="field">
+        <label>쿠팡 원본 URL</label>
+        <input class="inp" id="eCoupang" placeholder="https://www.coupang.com/vp/products/...">
+      </div>
+      <div class="field">
+        <label>내 쿠파스 링크 <span style="color:#6f778c">(비우면 자동 생성)</span></label>
+        <input class="inp" id="eAffiliate" placeholder="https://link.coupang.com/a/...">
+      </div>
+      <div class="field">
+        <label>참고 본문</label>
+        <textarea class="ta" id="eBody" placeholder="원글의 후킹 포인트를 적어두면 문구 생성에 반영돼요."></textarea>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#aeb7c9;margin-top:2px">
+        <span class="switch"><input type="checkbox" id="eActive"><span></span></span>이 상품 활성화
+      </label>
+      <div class="hint"><span id="eMeta">-</span><span id="eId"></span></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" onclick="closeEdit()">취소</button>
+      <button class="btn primary" id="eSaveBtn" onclick="saveEditProduct()"><svg><use href="#i-check"/></svg>저장</button>
+    </div>
+  </div>
+</div>
 
+<div class="toast" id="toast"><svg><use href="#i-check"/></svg><span id="toastMsg"></span></div>
 <script>
 /* ============================================================
    스레드 쿠파스 대시보드 — 프론트엔드
@@ -1074,6 +1120,71 @@ const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const fmt = n => n >= 10000 ? (n/10000).toFixed(1).replace('.0','') + '만' : n.toLocaleString('ko-KR');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad2 = n => String(n).padStart(2, '0');
+
+/* ---------- 날짜 · 오류 문구 정리 ---------- */
+function kstPartsOf(d){
+  const f = new Intl.DateTimeFormat('en-GB', {timeZone:'Asia/Seoul', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false});
+  const o = {};
+  f.formatToParts(d).forEach(p => { o[p.type] = p.value; });
+  return { y:o.year, m:o.month, d:o.day, h:(o.hour === '24' ? '00' : o.hour), mi:o.minute };
+}
+/* 시트·API 가 주는 날짜값(ISO 'Z' 포함 · 'YYYY-MM-DD HH:MM' · Date)을 KST 기준으로 해석한다.
+   타임존 표기가 없는 값은 이미 KST 벽시계 시각으로 보고, UTC 변환으로 날짜가 밀리지 않게 한다. */
+function stampOf(v){
+  if(v === null || v === undefined) return null;
+  if(v instanceof Date) return isNaN(v.getTime()) ? null : kstPartsOf(v);
+  const s = String(v).trim();
+  if(!s || s === '-' || s === '—') return null;
+  const t = /^(\d{1,2}):(\d{2})(?::\d{2})?$/.exec(s);
+  if(t){ const now = kstPartsOf(new Date()); return { y:now.y, m:now.m, d:now.d, h:pad2(t[1]), mi:t[2] }; }
+  if(/(?:Z|[+-]\d{2}:?\d{2})$/i.test(s)){
+    const d = new Date(s);
+    if(!isNaN(d.getTime())) return kstPartsOf(d);
+  }
+  const m = /^(\d{4})[-./](\d{1,2})[-./](\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?/.exec(s);
+  if(m) return { y:m[1], m:pad2(m[2]), d:pad2(m[3]), h:(m[4] ? pad2(m[4]) : ''), mi:(m[5] || '') };
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : kstPartsOf(d);
+}
+/* 상품 풀 '최근 발행' — 2026-11-26T15:00:00.000Z → 11.27 */
+function fmtDateMD(v){
+  const p = stampOf(v);
+  if(p) return `${p.m}.${p.d}`;
+  return (v === null || v === undefined || v === '') ? '-' : esc(v);
+}
+/* 발행 로그 '시각' — 날짜까지 같이 (11.27 22:41) */
+function fmtDateTimeMD(v){
+  const p = stampOf(v);
+  if(!p) return (v === null || v === undefined || v === '') ? '-' : esc(v);
+  return p.h ? `${p.m}.${p.d} ${p.h}:${p.mi}` : `${p.m}.${p.d}`;
+}
+function dateKey(v){
+  const p = stampOf(v);
+  return p ? `${p.y}-${p.m}-${p.d}` : null;
+}
+/* 실패 로그에 섞여 오는 <html> 응답을 공백 한 줄로 평탄화한다. */
+function cleanText(v){
+  return String(v ?? '')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ').replace(/&amp;/gi, '&').replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>').replace(/&quot;/gi, '"').replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ').trim();
+}
+function cleanErr(v, max){
+  const limit = max || 120;
+  const s = cleanText(v);
+  if(!s) return '';
+  return s.length > limit ? s.slice(0, limit).replace(/[\s,·:;/-]+$/, '') + '…' : s;
+}
+/* 시트의 tokenStatus 는 '연결' / '미연결' — '미연결'까지 걸리지 않게 정확히 비교한다. */
+function tokenOk(v){
+  if(v === true) return true;
+  const s = String(v === null || v === undefined ? '' : v).trim();
+  return s === '연결' || s === '연결됨' || s === '정상' || s.toUpperCase() === 'TRUE' || s.toUpperCase() === 'OK';
+}
 
 function toast(msg){
   const t = $('#toast'); $('#toastMsg').textContent = msg;
@@ -1230,10 +1341,13 @@ function renderPool(){
           <span class="linkchip ${p.affiliate?'':'gray'}">${p.affiliate?'내 링크':'링크 자동생성'}</span>
         </div>
       </div>
-      <div class="muted-cell col-mid">${p.uses}회</div>
-      <div class="muted-cell col-mid">${esc(p.last)}</div>
-      <div class="col-status"><span class="status-badge ${p.active?'on':'off'}">${p.active?'활성':'중지'}</span></div>
+      <div class="muted-cell col-mid">${Number(p.uses||0)}회</div>
+      <div class="muted-cell col-mid">${esc(fmtDateMD(p.last))}</div>
+      <div class="col-status">
+        <button class="status-badge as-btn ${p.active?'on':'off'}" title="${p.active?'클릭하면 발행을 중지해요':'클릭하면 다시 활성화해요'}" onclick="toggleProduct('${p.id}',${p.active?'false':'true'})">${p.active?'활성':'중지'}</button>
+      </div>
       <div style="display:flex;gap:6px;justify-content:flex-end">
+        <button class="icon-btn" title="수정" onclick="openEditProduct('${p.id}')"><svg><use href="#i-pen"/></svg></button>
         <button class="icon-btn" title="삭제" onclick="removeProduct('${p.id}')"><svg><use href="#i-trash"/></svg></button>
       </div>
     </div>`).join('') || `<div style="padding:30px;text-align:center;color:#5d6579;font-size:12.5px">조건에 맞는 상품이 없어요.</div>`;
@@ -1260,10 +1374,68 @@ async function removeProduct(id){
   }
   state.products = state.products.filter(x=>x.id!==id); save(); renderPool(); toast('삭제했어요');
 }
-function openAddProduct(){ $('#modal').classList.add('open'); setTimeout(()=>$('#mThreads').focus(),50); }
+function openAddProduct(){ closeEdit(); $('#modal').classList.add('open'); setTimeout(()=>$('#mThreads').focus(),50); }
 function closeModal(){ $('#modal').classList.remove('open'); }
 $('#modal').addEventListener('click', e=>{ if(e.target===$('#modal')) closeModal(); });
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+/* ---------- 상품 수정 (updateProduct) ---------- */
+let editId = null;
+function openEditProduct(id){
+  const p = state.products.find(x=>String(x.id)===String(id));
+  if(!p) return toast('상품을 찾지 못했어요');
+  closeModal();
+  editId = p.id;
+  $('#eName').value = p.name || '';
+  $('#eThreads').value = p.threads || '';
+  $('#eCoupang').value = p.coupang || '';
+  $('#eAffiliate').value = p.affiliate || '';
+  $('#eBody').value = p.note || '';
+  $('#eActive').checked = p.active !== false;
+  $('#eMeta').textContent = `사용 ${Number(p.uses||0)}회 · 최근 발행 ${fmtDateMD(p.last)}`;
+  $('#eId').textContent = `ID ${p.id}`;
+  $('#editModal').classList.add('open');
+  setTimeout(()=>$('#eName').focus(), 50);
+}
+function closeEdit(){ $('#editModal').classList.remove('open'); editId = null; }
+$('#editModal').addEventListener('click', e=>{ if(e.target===$('#editModal')) closeEdit(); });
+
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); closeEdit(); } });
+async function saveEditProduct(){
+  const p = state.products.find(x=>String(x.id)===String(editId));
+  if(!p) return closeEdit();
+  const name = ($('#eName').value || '').trim();
+  const threadsUrl = ($('#eThreads').value || '').trim();
+  if(!name) return toast('상품명을 입력해주세요');
+  if(!threadsUrl) return toast('스레드 링크를 입력해주세요');
+  const fields = {
+    name: name,
+    threadsUrl: threadsUrl,
+    coupangUrl: ($('#eCoupang').value || '').trim(),
+    affiliateUrl: ($('#eAffiliate').value || '').trim(),
+    note: ($('#eBody').value || '').trim(),
+    active: $('#eActive').checked
+  };
+  const btn = $('#eSaveBtn');
+  const label = btn ? btn.innerHTML : '';
+  if(API.configured()){
+    if(btn){ btn.disabled = true; btn.textContent = '저장 중...'; }
+    try{ await API.call('updateProduct', {id:p.id, fields}); }
+    catch(err){
+      if(btn){ btn.disabled = false; btn.innerHTML = label; }
+      toast('시트 저장 실패: ' + err.message);
+      return;
+    }
+    if(btn){ btn.disabled = false; btn.innerHTML = label; }
+  }
+  p.name = name;
+  p.threads = threadsUrl;
+  p.coupang = fields.coupangUrl;
+  p.affiliate = fields.affiliateUrl;
+  p.note = fields.note;
+  p.active = fields.active;
+  save(); renderPool(); closeEdit();
+  toast('상품 정보를 저장했어요');
+}
 /* 쿠팡 링크로 쓸 수 있는 값인지 — 도메인과 더미 번호(1234567890)를 함께 본다. */
 function isRealCoupangUrl(v){
   const s = String(v || '').trim();
@@ -1321,7 +1493,7 @@ async function saveProduct(){
       catch(err){ toast('시트 저장 실패: ' + err.message); return; }
     }
     state.products.unshift({id, name:item.name, threads:item.threadsUrl, coupang,
-      affiliate, uses:0, last:'-', active});
+      affiliate, note, uses:0, last:'-', active});
   }
   save(); renderPool(); closeModal();
   ['#mName','#mThreads','#mCoupang','#mAffiliate','#mBody'].forEach(s=>$(s).value='');
@@ -1377,6 +1549,22 @@ function renderAccounts(){
       </div>
     </div>`;
   }).join('');
+  /* 계정 수는 하드코딩하지 않고 실제 연결 상태(status==='connected')에서 센다 */
+  const connected = (state.accounts||[]).filter(a=>a.status==='connected').length;
+  const pill = $('#acctPill'), pillText = $('#acctPillText');
+  if(pill && pillText){
+    pill.className = connected ? 'pill live' : 'pill';
+    pillText.textContent = connected ? `${connected}개 계정 연결됨` : '연결된 계정 없음';
+    const dot = pill.querySelector('.dot');
+    if(dot) dot.style.display = connected ? '' : 'none';
+  }
+  const ratio = $('#tokenRatio');
+  if(ratio){
+    ratio.className = 'status-badge ' + (connected ? 'ok' : 'off');
+    ratio.textContent = `${connected} / 5`;
+  }
+  const navAcct = $('#navAcctCount');
+  if(navAcct) navAcct.textContent = connected;
   renderStats();
 }
 function setAcct(i, key, val){
@@ -1561,18 +1749,47 @@ function buildPreview(force){
 }
 
 /* ---------- logs / settings ---------- */
+let logRange = 'today';
+function setLogRange(r){
+  logRange = r;
+  $$('#logRangeSeg button').forEach(b=>b.classList.toggle('on', b.dataset.r===r));
+  renderLogs();
+}
+function logRows(){
+  const list = state.logs || [];
+  if(logRange==='all') return list;
+  const today = isoToday();
+  const from = (function(){ const d = new Date(); d.setDate(d.getDate()-6); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; })();
+  return list.filter(l=>{
+    /* 날짜가 없는 예전 값('22:41' 만 있는 경우)은 오늘로 본다. */
+    const k = dateKey(l.ts || l.time) || today;
+    return logRange==='today' ? k === today : k >= from;
+  });
+}
 function renderLogs(){
-  $('#logList').innerHTML = state.logs.map(l=>`
+  const rows = logRows();
+  $('#logList').innerHTML = rows.map(l=>{
+    const ok = !!l.ok;
+    const raw = l.err || '';
+    const brief = cleanErr(raw);
+    const link = String(l.link || '');
+    const href = /^https?:\/\//i.test(link) ? link : (link ? 'https://' + link : '');
+    return `
     <div class="log-row">
-      <div class="log-time">${esc(l.time)}</div>
+      <div class="log-time">${fmtDateTimeMD(l.ts || l.time)}</div>
       <div class="log-acct">${esc(l.acct)}</div>
       <div>
         <div class="log-prod">${esc(l.product)}</div>
         <div class="log-snip">${esc(l.snip)}</div>
       </div>
-      <div>${l.ok?`<a class="log-link" href="https://${esc(l.link)}" target="_blank" rel="noopener">글 보기 <svg width="10" height="10"><use href="#i-ext"/></svg></a>`:`<span style="font-size:10.5px;color:#ff93a5">${esc(l.err||'실패')}</span>`}</div>
-      <div><span class="status-badge ${l.ok?'ok':'fail'}">${l.ok?'성공':'실패'}</span></div>
-    </div>`).join('');
+      <div>${ok
+        ? (href
+            ? `<a class="log-link" href="${esc(href)}" target="_blank" rel="noopener">글 보기 <svg width="10" height="10"><use href="#i-ext"/></svg></a>`
+            : '<span style="font-size:10.5px;color:#5d6579">링크 없음</span>')
+        : `<span class="log-err" title="${esc(cleanText(raw))}">${esc(brief || '실패')}</span>`}</div>
+      <div><span class="status-badge ${ok?'ok':'fail'}">${ok?'성공':'실패'}</span></div>
+    </div>`;
+  }).join('') || `<div style="padding:30px;text-align:center;color:#5d6579;font-size:12.5px">${logRange==='today' ? '오늘 발행 로그가 아직 없어요.' : '이 기간에는 발행 로그가 없어요.'}</div>`;
 }
 async function testGas(){
   const url = $('#gasUrl').value.trim();
@@ -1609,7 +1826,7 @@ async function syncBackend(){
     if(Array.isArray(data.recommendations)) applyRecommendations(data.recommendations);
     if(Array.isArray(data.products)){
       state.products = data.products.map(p=>({id:String(p.id), name:p.name, threads:p.threadsUrl,
-        coupang:p.coupangUrl, affiliate:p.affiliateUrl, uses:Number(p.uses||0),
+        coupang:p.coupangUrl, affiliate:p.affiliateUrl, note:p.note || '', uses:Number(p.uses||0),
         last:p.lastPosted || '-', active:!!p.active}));
     }
     if(Array.isArray(data.accounts) && data.accounts.length){
@@ -1618,7 +1835,7 @@ async function syncBackend(){
       state.accounts = data.accounts.slice(0,5).map(a=>({
         id:a.no, no:a.no, name:a.name || ('계정 '+a.no),
         handle:'@' + (a.userId || ('account'+a.no)),
-        status:(a.tokenStatus==='연결'?'connected':'pending'),
+        status:(tokenOk(a.tokenStatus)?'connected':'pending'),
         active:!(a.active===false || a.active===0 || String(a.active).toLowerCase()==='false'),
         goal:Number(a.goal||7), today:counts[a.no]||0,
         from:a.start||'08:00', to:a.end||'23:00', variant:a.variant||'original',
@@ -1627,9 +1844,9 @@ async function syncBackend(){
       state.todayDate = today;   /* 이 발행 수치가 '오늘' 것임을 함께 기억 */
     }
     if(Array.isArray(data.logs)){
-      state.logs = data.logs.slice(0,30).map(l=>({time:String(l.ts||'').slice(11,16),
+      state.logs = data.logs.slice(0,50).map(l=>({ts:String(l.ts||''), time:String(l.ts||'').slice(11,16),
         acct:l.accountName||('계정 '+l.accountNo), product:l.productName||'-',
-        snip:(l.text||'').split('\n')[0].slice(0,60), link:(l.postUrl||'').replace(/^https?:\/\//,''),
+        snip:cleanText(l.text||'').split('\n')[0].slice(0,60), link:(l.postUrl||'').replace(/^https?:\/\//,''),
         ok:String(l.status)==='성공', err:l.note}));
     }
     save(); renderRec(); renderPool(); renderAccounts(); renderLogs();
