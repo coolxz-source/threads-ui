@@ -972,10 +972,14 @@
     <section class="tab-panel" id="tab-perf">
       <div class="section-head">
         <div>
-          <div class="section-title"><span class="emoji">💰</span>실적 리포트 <span class="count-chip">최근 7일</span></div>
+          <div class="section-title"><span class="emoji">💰</span>실적 리포트 <span class="count-chip" id="perfPeriodChip">최근 7일</span></div>
           <div class="section-desc">쿠팡 파트너스 기준 실적이에요. 조회수보다 <b style="color:#ffb0be">클릭</b>이 핵심 지표예요.</div>
         </div>
-        <span class="pill hot" id="perfNote"><svg><use href="#i-spark"/></svg>데모 데이터</span>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn sm" onclick="document.getElementById('perfFile').click()"><svg><use href="#i-copy"/></svg>리포트 파일 불러오기</button>
+          <input type="file" id="perfFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="importPerfFile(this)">
+          <span class="pill hot" id="perfNote"><svg><use href="#i-spark"/></svg>데모 데이터</span>
+        </div>
       </div>
 
       <div class="stats">
@@ -1015,7 +1019,7 @@
       <div class="section-head">
         <div>
           <div class="section-title">상품별 실적</div>
-          <div class="section-desc">클릭 높은 순으로 정렬했어요.</div>
+          <div class="section-desc" id="perfProdDesc">클릭 높은 순으로 정렬했어요.</div>
         </div>
       </div>
       <div class="pool">
@@ -1025,7 +1029,7 @@
 
       <div class="rec-tip">
         <svg><use href="#i-shield"/></svg>
-        <div>백엔드가 연결되면 쿠팡 파트너스 리포트를 불러와 실제 숫자로 교체돼요. 연결 전에는 데모 숫자로 화면만 확인할 수 있어요.</div>
+        <div>쿠팡 파트너스에서 내려받은 리포트 파일(xlsx·csv)을 불러오면 실제 숫자로 표시돼요. 불러온 실적은 이 브라우저에 저장돼요.</div>
       </div>
     </section>
   </main>
@@ -1132,6 +1136,7 @@
 </div>
 
 <div class="toast" id="toast"><svg><use href="#i-check"/></svg><span id="toastMsg"></span></div>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
 /* ============================================================
    스레드 쿠파스 대시보드 — 프론트엔드
@@ -2253,12 +2258,17 @@ function convOf(clicks, orders){
   return c > 0 ? (Number(orders || 0) / c * 100) : 0;
 }
 function renderPerf(){
+  const P = state.perf || null;
   const perf = state.performance || {byAccount: [], byProduct: []};
-  const byA = Array.isArray(perf.byAccount) ? perf.byAccount : [];
-  const byP = (Array.isArray(perf.byProduct) ? [...perf.byProduct] : []).sort((x, y)=>(y.clicks || 0) - (x.clicks || 0));
-  const tClicks = byA.reduce((s, a)=>s + (Number(a.clicks) || 0), 0);
-  const tOrders = byA.reduce((s, a)=>s + (Number(a.orders) || 0), 0);
-  const tRevenue = byA.reduce((s, a)=>s + (Number(a.revenue) || 0), 0);
+  const byA = P
+    ? (Array.isArray(P.byChannel) ? P.byChannel : []).map(c=>({name: c.id || '기본값', handle: '', clicks: Number(c.clicks || 0), orders: Number(c.orders || 0), revenue: Number(c.revenue || 0)}))
+    : (Array.isArray(perf.byAccount) ? perf.byAccount : []);
+  const byP = P
+    ? (Array.isArray(P.byProduct) ? P.byProduct : []).map(p=>({name: p.name, clicks: null, orders: Number(p.qty || 0), revenue: Number(p.revenue || 0)}))
+    : (Array.isArray(perf.byProduct) ? [...perf.byProduct] : []).sort((x, y)=>(y.clicks || 0) - (x.clicks || 0));
+  const tClicks = P ? Number(P.clicks || 0) : byA.reduce((s, a)=>s + (Number(a.clicks) || 0), 0);
+  const tOrders = P ? Number(P.orders || 0) : byA.reduce((s, a)=>s + (Number(a.orders) || 0), 0);
+  const tRevenue = P ? Number(P.revenue || 0) : byA.reduce((s, a)=>s + (Number(a.revenue) || 0), 0);
   const cEl = $('#perfClicks'); if(cEl) cEl.innerHTML = tClicks.toLocaleString('ko-KR') + '<small>회</small>';
   const oEl = $('#perfOrders'); if(oEl) oEl.innerHTML = tOrders.toLocaleString('ko-KR') + '<small>건</small>';
   const rEl = $('#perfRevenue'); if(rEl) rEl.innerHTML = tRevenue.toLocaleString('ko-KR') + '<small>원</small>';
@@ -2279,15 +2289,24 @@ function renderPerf(){
     pList.innerHTML = byP.map(p=>`
     <div class="ptable-row p">
       <div class="pt-name">${esc(p.name)}</div>
-      <div class="pt-num pt-click">${Number(p.clicks || 0).toLocaleString('ko-KR')}</div>
+      <div class="pt-num pt-click">${p.clicks == null ? '–' : Number(p.clicks || 0).toLocaleString('ko-KR')}</div>
       <div class="pt-num">${Number(p.orders || 0).toLocaleString('ko-KR')}</div>
-      <div class="pt-num">${convOf(p.clicks, p.orders).toFixed(1)}%</div>
+      <div class="pt-num">${p.clicks == null ? '–' : convOf(p.clicks, p.orders).toFixed(1) + '%'}</div>
       <div class="pt-num">${fmtWon(p.revenue)}</div>
     </div>`).join('') || `<div style="padding:26px;text-align:center;color:#5d6579;font-size:12.5px">아직 실적 데이터가 없어요.</div>`;
   }
+  const chip = $('#perfPeriodChip');
+  if(chip) chip.textContent = (P && P.from && P.to) ? (perfMD(P.from) + '~' + perfMD(P.to)) : '최근 7일';
+  const pDesc = $('#perfProdDesc');
+  if(pDesc) pDesc.textContent = P ? '수익 높은 순으로 정렬했어요.' : '클릭 높은 순으로 정렬했어요.';
   const note = $('#perfNote');
   if(note){
-    if(state.perfLive){
+    if(P){
+      note.className = 'pill live';
+      note.innerHTML = '<svg><use href="#i-shield"/></svg>리포트 불러옴'
+        + ((P.from && P.to) ? (' · ' + perfMD(P.from) + '~' + perfMD(P.to)) : '');
+    }
+    else if(state.perfLive){
       note.className = 'pill live';
       note.innerHTML = state.perfHasReport === false
         ? '<svg><use href="#i-shield"/></svg>실시간 연결 · 리포트 0건'
@@ -2311,6 +2330,116 @@ async function loadPerformance(){
       save(); renderPerf();
     }
   }catch(e){ /* 조용히 데모 데이터로 폴백 */ }
+}
+
+/* ---------- 실적 리포트 파일 불러오기 (쿠팡파트너스 xlsx/csv) ----------
+   clicks 시트: [날짜, 채널 ID, 링크 타입, 링크 ID, 링크 타입] — 마지막 열이 클릭 수 (헤더명이 중복돼 배열로 읽는다)
+   orders 시트: [날짜, 채널 ID, 상품 ID, 상품명, 판매 수량, 매출 액, 수익, 취소 수량, 취소 액, 취소 수익] */
+function perfNum(v){
+  if(typeof v === 'number') return isNaN(v) ? 0 : v;
+  const n = Number(String(v == null ? '' : v).replace(/[,\s]/g, ''));
+  return isNaN(n) ? 0 : n;
+}
+function perfDateStr(v){
+  if(v == null || v === '') return '';
+  if(v instanceof Date && !isNaN(v)){
+    return v.getFullYear() + '-' + String(v.getMonth() + 1).padStart(2, '0') + '-' + String(v.getDate()).padStart(2, '0');
+  }
+  if(typeof v === 'number' && v > 20000 && v < 80000){
+    const d = new Date(Math.round((v - 25569) * 86400000));
+    return isNaN(d) ? '' : d.toISOString().slice(0, 10);
+  }
+  const m = String(v).trim().replace(/[./]/g, '-').match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  return m ? (m[1] + '-' + m[2].padStart(2, '0') + '-' + m[3].padStart(2, '0')) : '';
+}
+function perfMD(iso){
+  const m = String(iso || '').match(/(\d{4})-(\d{2})-(\d{2})/);
+  return m ? (Number(m[2]) + '월 ' + Number(m[3]) + '일') : '';
+}
+function perfDataRows(aoa){
+  if(!Array.isArray(aoa)) return [];
+  const rows = aoa.filter(r=>Array.isArray(r) && r.some(c=>c !== '' && c != null));
+  if(rows.length && String(rows[0][0] || '').indexOf('날짜') >= 0) return rows.slice(1);
+  return rows;
+}
+function aggregatePerf(clicksAoa, ordersAoa){
+  const chan = {};
+  const getChan = id=>{
+    if(!chan[id]) chan[id] = {id: id, clicks: 0, orders: 0, revenue: 0};
+    return chan[id];
+  };
+  let from = '', to = '';
+  const seeDate = v=>{
+    const d = perfDateStr(v);
+    if(d){ if(!from || d < from) from = d; if(!to || d > to) to = d; }
+  };
+  let clicks = 0;
+  perfDataRows(clicksAoa).forEach(r=>{
+    seeDate(r[0]);
+    const n = perfNum(r[r.length - 1]);
+    clicks += n;
+    getChan(String(r[1] == null ? '' : r[1]).trim()).clicks += n;
+  });
+  let orders = 0, sales = 0, revenue = 0;
+  const prod = {};
+  perfDataRows(ordersAoa).forEach(r=>{
+    seeDate(r[0]);
+    const qty = perfNum(r[4]) - perfNum(r[7]);
+    const sl = perfNum(r[5]) - perfNum(r[8]);
+    const rv = perfNum(r[6]) - perfNum(r[9]);
+    orders += qty; sales += sl; revenue += rv;
+    const c = getChan(String(r[1] == null ? '' : r[1]).trim());
+    c.orders += qty; c.revenue += rv;
+    const name = String(r[3] == null ? '' : r[3]).trim() || '(상품명 없음)';
+    if(!prod[name]) prod[name] = {name: name, qty: 0, sales: 0, revenue: 0};
+    prod[name].qty += qty; prod[name].sales += sl; prod[name].revenue += rv;
+  });
+  const byChannel = Object.keys(chan).map(k=>chan[k])
+    .sort((a, b)=>(b.clicks - a.clicks) || (b.revenue - a.revenue));
+  const byProduct = Object.keys(prod).map(k=>prod[k])
+    .sort((a, b)=>b.revenue - a.revenue);
+  return {from: from, to: to, clicks: clicks, orders: orders, sales: sales, revenue: revenue, byChannel: byChannel, byProduct: byProduct};
+}
+function parsePerfWorkbook(wb){
+  const names = wb.SheetNames || [];
+  const find = n=>names.find(x=>String(x).trim().toLowerCase() === n);
+  const aoaOf = n=>{
+    const ws = wb.Sheets[n];
+    return ws ? XLSX.utils.sheet_to_json(ws, {header: 1, defval: '', raw: true}) : null;
+  };
+  let clicksAoa = find('clicks') ? aoaOf(find('clicks')) : null;
+  let ordersAoa = find('orders') ? aoaOf(find('orders')) : null;
+  if(!clicksAoa && !ordersAoa){
+    /* 시트 이름이 없는 단일 파일(csv 등)은 헤더로 clicks/orders 를 가른다 */
+    const first = names[0];
+    if(!first) return null;
+    const aoa = aoaOf(first);
+    if(!aoa || !aoa.length) return null;
+    const head = (aoa[0] || []).map(c=>String(c || ''));
+    if(head.some(h=>h.indexOf('상품명') >= 0 || h.indexOf('판매 수량') >= 0)) ordersAoa = aoa;
+    else clicksAoa = aoa;
+  }
+  if(!clicksAoa && !ordersAoa) return null;
+  return aggregatePerf(clicksAoa || [], ordersAoa || []);
+}
+function importPerfFile(input){
+  const file = input && input.files && input.files[0];
+  if(input) input.value = '';
+  if(!file) return;
+  if(typeof XLSX === 'undefined'){ toast('라이브러리를 못 불러왔어요'); return; }
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const wb = XLSX.read(new Uint8Array(reader.result), {type: 'array', cellDates: true});
+      const parsed = parsePerfWorkbook(wb);
+      if(!parsed){ toast('리포트 형식이 아니에요 · 쿠팡 리포트 파일인지 확인해 주세요'); return; }
+      state.perf = Object.assign({importedAt: new Date().toISOString()}, parsed);
+      save(); renderPerf();
+      toast('실적 리포트를 불러왔어요');
+    }catch(e){ toast('파일을 읽지 못했어요'); }
+  };
+  reader.onerror = ()=>toast('파일을 읽지 못했어요');
+  reader.readAsArrayBuffer(file);
 }
 
 /* ---------- styles / preview ---------- */
