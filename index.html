@@ -452,6 +452,9 @@
   select.inp{cursor:pointer}
 
   /* ---------- publish queue (발행 대기) ---------- */
+  .pubctl-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:12px;background:rgba(255,255,255,.03)}
+  .pubctl-info{display:flex;align-items:center;gap:9px;flex:1;min-width:200px}
+  .pubctl-desc{font-size:12px;color:var(--dim)}
   .queue-list{display:grid;gap:9px}
   .queue-row{
     display:flex;align-items:center;gap:12px;
@@ -677,7 +680,7 @@
         <h1 class="page-title" id="pageTitle">오늘의 <span class="accent">추천</span> 스레드</h1>
       </div>
       <div class="top-actions">
-        <span class="pill live" id="autoPill"><svg><use href="#i-clock"/></svg>자동 발행 랜덤 간격 · 최소 1시간</span>
+        <span class="pill live" id="autoPill"><svg><use href="#i-clock"/></svg>수동 시작 · 랜덤 간격 최소 1시간</span>
         <span class="pill hot" id="demoPill"><svg><use href="#i-spark"/></svg>데모 데이터</span>
         <button class="btn sm ghost" onclick="refreshRecommend()"><svg><use href="#i-refresh"/></svg>추천 새로고침</button>
       </div>
@@ -725,7 +728,7 @@
       <div class="section-head">
         <div>
           <div class="section-title"><span class="emoji">🔥</span>터진 스레드 추천 <span class="count-chip" id="recCountChip">5</span></div>
-          <div class="section-desc">마음에 드는 카드를 작업 목록에 담으면, 계정별로 자동 발행돼요.</div>
+          <div class="section-desc">마음에 드는 카드를 작업 목록에 담고, 발행 대기 탭에서 발행 시작을 누르면 올라가요.</div>
         </div>
         <span class="pill">정렬 · 반응 높은 순</span>
       </div>
@@ -931,11 +934,20 @@
         <button class="btn sm ghost" onclick="renderQueue(); toast('발행 예정을 다시 계산했어요')"><svg><use href="#i-refresh"/></svg>예정 다시 계산</button>
       </div>
 
+      <div class="pubctl-bar">
+        <div class="pubctl-info">
+          <span class="pill" id="publishStatePill">정지 중</span>
+          <span class="pubctl-desc" id="publishStateDesc">발행 시작을 눌러야 글이 올라가요.</span>
+        </div>
+        <button class="btn sm" id="publishStartBtn" onclick="startPublish()"><svg><use href="#i-play"/></svg>발행 시작</button>
+        <button class="btn sm ghost" id="publishStopBtn" onclick="stopPublish()" style="display:none"><svg><use href="#i-x"/></svg>정지</button>
+      </div>
+
       <div class="queue-list" id="queueList"></div>
 
       <div class="rec-tip">
         <svg><use href="#i-shield"/></svg>
-        <div>이 화면은 <b style="color:#c8cede">발행 예정 · 관리용</b>이에요. 실제 발행은 백엔드 봇이 20분마다 깨어나 <b style="color:#c8cede">계정별 마지막 발행에서 1~3시간 랜덤 간격(최소 1시간)</b>이 지난 계정만 처리해요. 여기서 순서를 바꾸거나 취소하면 다음 발행부터 반영돼요. 예정 시각은 계정별 활동 시간 안에서 계산한 값이라 실제 발행과 조금 차이 날 수 있어요.</div>
+        <div>이 화면은 <b style="color:#c8cede">발행 예정 · 관리용</b>이에요. 실제 발행은 <b style="color:#c8cede">발행 시작</b>을 눌렀을 때만 일어나요. 시작하면 지금 목록이 랜덤 순서로 섞여서 계정별 <b style="color:#c8cede">1~3시간 랜덤 간격(최소 1시간)</b>으로 올라가고, <b style="color:#c8cede">정지</b>를 누르면 그 순간부터 멈춰요. 여기서 순서를 바꾸거나 취소하면 다음 발행부터 반영돼요. 예정 시각은 계정별 활동 시간 안에서 계산한 값이라 실제 발행과 조금 차이 날 수 있어요.</div>
       </div>
     </section>
 
@@ -1232,6 +1244,8 @@ const SEED = {
     ]
   },
   queue: [],
+  publishOn: false,
+  publishStartedAt: '',
   style:'찐후기',
   disclosure: DISCLOSURE_DEFAULT,
   gasUrl:''
@@ -1478,7 +1492,7 @@ async function takeRec(id){
       affiliate:'', uses:0, last:'-', active:true
     });
   }
-  save(); renderRecSpaced(); renderPool(); renderQueue(); pushQueue(); toast('작업 목록에 담았어요 · 계정별 자동 발행 대기');
+  save(); renderRecSpaced(); renderPool(); renderQueue(); pushQueue(); toast('작업 목록에 담았어요 · 발행 시작을 누르면 올라가요');
 }
 async function passRec(id){
   const r = state.recommendations.find(x=>x.id===id); if(!r) return;
@@ -1924,11 +1938,15 @@ function queueItems(){
 /* 대기열 순서를 시트에 저장 — 발행 엔진이 다음 발행 대상을 이 순서대로 고른다.
    상품ID가 없는 로컬 항목은 보내지 않는다(다음 동기화에서 서버 목록으로 맞춘다). */
 function queuePayload(){
-  return queueItems().map(it=>{
+  const items = queueItems().map(it=>{
     const p = it.rec ? state.products.find(x=>x.name===it.name) : state.products.find(x=>String(x.id)===String(it.prodId));
     const productId = String((p && p.id) || it.prodId || '');
     return productId ? {productId, kind:it.kind, name:it.name} : null;
   }).filter(Boolean);
+  /* 발행 중이면 어떤 저장에서도 시작 신호(센티넬)가 끝에 유지돼야 한다 */
+  const s = publishSentinel();
+  if(s) items.push(s);
+  return items;
 }
 let queuePushTimer = null;
 function pushQueue(){
@@ -1940,10 +1958,13 @@ function pushQueue(){
       .catch(()=>{ /* 다음 동기화 때 다시 맞춘다 */ });
   }, 400);
 }
-/* 서버(시트) 대기열 순서를 화면 순서에 반영 — 화면 키(rec:/prod:)로 다시 맞춘다. */
+/* 서버(시트) 대기열 순서를 화면 순서에 반영 — 화면 키(rec:/prod:)로 다시 맞춘다.
+   시작 신호(센티넬)는 목록에 표시하지 않고 발행 상태로만 채택한다. */
 function applyServerQueue(items){
-  if(!Array.isArray(items) || !items.length) return;
-  const keys = items.map(q=>{
+  if(!Array.isArray(items)) return;
+  adoptPublishState(items);
+  if(!items.length) return;
+  const keys = items.filter(q=>String(q.productId || '') !== PUBLISH_SENTINEL_ID).map(q=>{
     const pid = String(q.productId || '');
     const p = (state.products || []).find(x=>String(x.id)===pid);
     if(p){
@@ -1955,6 +1976,76 @@ function applyServerQueue(items){
   const rest = (Array.isArray(state.queue) ? state.queue : []).filter(k=>keys.indexOf(k)<0);
   state.queue = keys.concat(rest);
   save(); renderQueue();
+}
+
+/* ---------- 발행 시작/정지 ---------- */
+/* 신호는 saveQueue 페이로드 끝에 붙는 제어용 항목(센티넬)으로 전달한다.
+   봇은 getAll의 queue에서 이 항목을 보고만 동작하고, 큐를 다시 쓰지 않는다. */
+const PUBLISH_SENTINEL_ID = '__PUBLISH_START__';
+
+function publishSentinel(){
+  if(!state.publishOn) return null;
+  return {productId: PUBLISH_SENTINEL_ID, kind:'__publish__',
+          name: state.publishStartedAt || new Date().toISOString()};
+}
+/* 서버 큐의 센티넬 유무를 로컬 발행 상태에 채택 (다른 기기에서 시작/정지한 경우 포함) */
+function adoptPublishState(queue){
+  const s = (queue || []).find(q=>String(q.productId || '') === PUBLISH_SENTINEL_ID);
+  const on = !!s;
+  const startedAt = s ? String(s.name || '') : '';
+  if(state.publishOn !== on || state.publishStartedAt !== startedAt){
+    state.publishOn = on;
+    state.publishStartedAt = startedAt;
+    save(); renderPublishCtl();
+  }
+}
+function startPublish(){
+  const items = queueItems();
+  if(!items.length){ toast('발행 대기 목록이 비어 있어요. 먼저 추천을 담아 주세요'); return; }
+  /* 시작할 때마다 순서를 새로 섞는다 (Fisher-Yates) */
+  const keys = items.map(it=>it.key);
+  for(let i = keys.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = keys[i]; keys[i] = keys[j]; keys[j] = t;
+  }
+  state.queue = keys;
+  state.publishOn = true;
+  state.publishStartedAt = new Date().toISOString();
+  save(); pushQueue(); renderQueue();
+  if(!API.configured() || !API.token){ toast('발행 시작됨'); return; }
+  /* 신호가 서버에 실제로 남았는지 다시 읽어 확인한다 */
+  setTimeout(async ()=>{
+    if(!state.publishOn) return;
+    try{
+      const data = await API.call('getAll');
+      const has = (data.queue || []).some(q=>String(q.productId || '') === PUBLISH_SENTINEL_ID);
+      if(has) toast('발행 시작됨 · 목록이 랜덤 순서로 올라가요');
+      else toast('서버가 시작 신호를 저장하지 못했어요');
+    }catch(e){ /* 확인 실패는 무시 — 다음 동기화에서 상태가 맞춰진다 */ }
+  }, 3000);
+}
+function stopPublish(){
+  state.publishOn = false;
+  state.publishStartedAt = '';
+  save(); pushQueue(); renderQueue();
+  toast('발행을 중지했어요 · 이미 올라간 글은 그대로 둬요');
+}
+function renderPublishCtl(){
+  const pill = $('#publishStatePill'), desc = $('#publishStateDesc');
+  const startBtn = $('#publishStartBtn'), stopBtn = $('#publishStopBtn');
+  if(!pill || !desc || !startBtn || !stopBtn) return;
+  if(state.publishOn){
+    pill.className = 'pill hot'; pill.textContent = '발행 중';
+    let when = '';
+    const d = state.publishStartedAt ? new Date(state.publishStartedAt) : null;
+    if(d && !isNaN(d)) when = ` · ${d.getMonth()+1}월 ${d.getDate()}일 ${pad2(d.getHours())}:${pad2(d.getMinutes())} 시작`;
+    desc.textContent = `발행 중${when} · 목록이 랜덤 순서로, 최소 1시간 간격으로 올라가요.`;
+    startBtn.style.display = 'none'; stopBtn.style.display = '';
+  }else{
+    pill.className = 'pill'; pill.textContent = '정지 중';
+    desc.textContent = '발행 시작을 눌러야 글이 올라가요.';
+    startBtn.style.display = ''; stopBtn.style.display = 'none';
+  }
 }
 
 /* 계정별 랜덤 발행 간격(분) — 60~180분.
@@ -2022,6 +2113,7 @@ function renderQueue(){
   }).join('') || `<div class="empty-note" style="border:1px dashed var(--line);border-radius:16px;padding:26px;text-align:center;color:var(--dim);font-size:13px">발행 대기 중인 항목이 없어요. 추천을 담거나 상품을 활성화하면 여기에 쌓여요.</div>`;
   const chip = $('#queueCountChip'); if(chip) chip.textContent = items.length;
   const nav = $('#navQueueCount'); if(nav) nav.textContent = items.length;
+  renderPublishCtl();
 }
 function moveQueueItem(key, dir){
   const q = Array.isArray(state.queue) ? state.queue : [];
@@ -2513,7 +2605,9 @@ async function syncBackend(){
         snip:cleanText(l.text||'').split('\n')[0].slice(0,60), link:(l.postUrl||'').replace(/^https?:\/\//,''),
         ok:String(l.status)==='성공', err:l.note, retry:String(l.retry||'') ? true : false}));
     }
-    /* 시트 대기열 순서가 있으면 화면 순서도 그대로 맞춘다(발행 엔진과 같은 순서). */
+    /* 시트 대기열 순서가 있으면 화면 순서도 그대로 맞춘다(발행 엔진과 같은 순서).
+       큐가 비어 있어도 센티넬 유무(발행 상태)는 채택한다. */
+    if(Array.isArray(data.queue)) adoptPublishState(data.queue);
     if(Array.isArray(data.queue) && data.queue.length) applyServerQueue(data.queue);
     const syncNow = new Date();
     state.lastSync = pad2(syncNow.getHours()) + ':' + pad2(syncNow.getMinutes());
