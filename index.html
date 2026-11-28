@@ -677,7 +677,7 @@
         <h1 class="page-title" id="pageTitle">오늘의 <span class="accent">추천</span> 스레드</h1>
       </div>
       <div class="top-actions">
-        <span class="pill live" id="autoPill"><svg><use href="#i-clock"/></svg>자동 발행 20분 주기</span>
+        <span class="pill live" id="autoPill"><svg><use href="#i-clock"/></svg>자동 발행 랜덤 간격 · 최소 1시간</span>
         <span class="pill hot" id="demoPill"><svg><use href="#i-spark"/></svg>데모 데이터</span>
         <button class="btn sm ghost" onclick="refreshRecommend()"><svg><use href="#i-refresh"/></svg>추천 새로고침</button>
       </div>
@@ -935,7 +935,7 @@
 
       <div class="rec-tip">
         <svg><use href="#i-shield"/></svg>
-        <div>이 화면은 <b style="color:#c8cede">발행 예정 · 관리용</b>이에요. 실제 발행은 백엔드 봇이 20분 주기로 처리하고, 여기서 순서를 바꾸거나 취소하면 다음 발행부터 반영돼요. 예정 시각은 계정별 활동 시간 안에서 계산한 값이라 실제 발행과 조금 차이 날 수 있어요.</div>
+        <div>이 화면은 <b style="color:#c8cede">발행 예정 · 관리용</b>이에요. 실제 발행은 백엔드 봇이 20분마다 깨어나 <b style="color:#c8cede">계정별 마지막 발행에서 1~3시간 랜덤 간격(최소 1시간)</b>이 지난 계정만 처리해요. 여기서 순서를 바꾸거나 취소하면 다음 발행부터 반영돼요. 예정 시각은 계정별 활동 시간 안에서 계산한 값이라 실제 발행과 조금 차이 날 수 있어요.</div>
       </div>
     </section>
 
@@ -1847,7 +1847,8 @@ function minutesOf(hhmm){
 function fmtHHMM(min){
   return String(Math.floor(min/60)%24).padStart(2,'0') + ':' + String(min%60).padStart(2,'0');
 }
-/* 다음 발행 = 연결된 계정의 활동 시간 안에서 20분 주기로 돌아오는 가장 가까운 슬롯 */
+/* 다음 발행 확인 = 엔진이 20분마다 깨어나는 시점 중 가장 가까운 때.
+   실제 발행은 그 시점에 마지막 발행 + 랜덤 간격(60~180분)이 지났는지 보고 정한다. */
 function nextPublishAt(){
   const accts = connectedAccounts();
   if(!accts.length) return null;
@@ -1888,13 +1889,13 @@ function renderStats(){
     else{
       const names = [];
       accts.forEach(a=>{ const l = variantLabel(a.variant); if(names.indexOf(l)<0) names.push(l); });
-      nextSub.textContent = `계정 ${accts.length}개 · ${names.join(' · ')}`;
+      nextSub.textContent = `계정 ${accts.length}개 · ${names.join(' · ')} · 간격 1~3시간 랜덤`;
     }
   }
 
   const meta = $('#engineMeta');
   if(meta) meta.innerHTML = next
-    ? `다음 발행 <b style="color:#aeb7c9">${nextLabel}</b> · 계정 ${accts.length}<br>오늘 ${done} / ${goal}건 완료`
+    ? `다음 발행 <b style="color:#aeb7c9">${nextLabel}</b> · 계정 ${accts.length}<br>오늘 ${done} / ${goal}건 · 간격 60~180분 랜덤`
     : `다음 발행 <b style="color:#aeb7c9">-</b> · 계정 0<br>연결된 계정 없음`;
   const row = $('#engineRow');
   if(row) row.innerHTML = `<span class="dot"></span>${accts.length ? '발행 엔진 정상' : '발행 엔진 대기 · 연결된 계정 없음'}`;
@@ -1956,10 +1957,20 @@ function applyServerQueue(items){
   save(); renderQueue();
 }
 
-/* 계정 활동 시간 안에서 20분 슬롯 기준 idx번째 발행 시각 */
+/* 계정별 랜덤 발행 간격(분) — 60~180분.
+   계정·날짜·순번으로 씨드를 고정해 화면을 다시 그려도 값이 바뀌지 않는다.
+   (실제 엔진은 마지막 성공 발행 시각을 씨드로 같은 방식으로 뽑는다.) */
+function gapMinutes(a, idx){
+  const s = `${a.no||''}|${isoToday()}|${idx}`;
+  let h = 2166136261;
+  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return 60 + Math.floor(((h>>>0)/4294967296) * 121);
+}
+/* 계정 활동 시간 안에서 idx번째 발행 예정 시각 — 첫 발행 뒤로는 랜덤 간격(최소 60분) */
 function slotAt(a, idx){
   const from = minutesOf(a.from), to = minutesOf(a.to);
   if(from === null || to === null) return null;
+  if(to <= from) return null;
   const now = new Date();
   const nowMin = now.getHours()*60 + now.getMinutes();
   let day = 0, min;
@@ -1969,8 +1980,8 @@ function slotAt(a, idx){
     if(min > to){ min = from; day = 1; }
   } else { min = from; day = 1; }
   for(let s = 0; s < idx; s++){
-    min += 20;
-    if(min > to){ day++; min = from; }
+    min += gapMinutes(a, s);
+    while(min > to){ day++; min = from + (min - to - 1); }
   }
   return {day, min};
 }
