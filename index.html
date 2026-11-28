@@ -1238,7 +1238,7 @@ const SEED = {
 };
 
 const STYLES = [
-  {id:'찐후기', name:'입말 찐후기형', desc:'친구한테 수다 떨듯 완전 반말. "아니 방충망 안 떼고 저렇게 닦는 거였어? ㄷㄷ"처럼 리액션부터. ㅋㅋㅋ·;;도 자연스럽게.', tag:'기본'},
+  {id:'찐후기', name:'입말 찐후기형', desc:'친구한테 수다 떨듯 완전 반말. "아니 방충망 안 떼고 저렇게 닦는 거였어? ㄷㄷ"처럼 리액션부터. ㅋㅋㅋ·;;·느낌표(!)에 이모지 한두 개까지 자연스럽게.', tag:'기본'},
   {id:'살림고수', name:'살림 고수형', desc:'자랑 없이 바뀐 동작만 반말로. "방충망 씻는 일이 통째로 사라졌음".', tag:'정보'},
   {id:'육아공감', name:'육아 공감형', desc:'애들 자고 나서, 등원 전 같은 장면에 상품을 놓고 반말로 시작함.', tag:'공감'},
   {id:'질문유도', name:'질문 유도형', desc:'답이 갈리는 질문 하나 던지고 내 답을 먼저 씀. "아직도 떼서 씻는 집 있어?"', tag:'질문'},
@@ -1460,18 +1460,25 @@ function renderRec(){
 async function takeRec(id){
   const r = state.recommendations.find(x=>x.id===id); if(!r) return;
   const rank = state.recommendations.filter(x=>x.status!=='passed').findIndex(x=>x.id===id) + 1;
+  let productId = '';
   if(API.configured()){
-    try { await API.call('takeRecommendation', {date: isoToday(), rank: r.rank || rank}); }
+    try {
+      const res = await API.call('takeRecommendation', {date: isoToday(), rank: r.rank || rank});
+      productId = String((res && res.productId) || '');   /* 시트에 만들어진 상품ID — 대기열 저장에 쓴다 */
+    }
     catch(err){ toast('시트에 담지 못했어요: ' + err.message); return; }
   }
   r.status='taken';
-  if(!state.products.some(p=>p.name===r.product)){
+  const existing = state.products.find(p=>p.name===r.product);
+  if(existing){
+    if(productId) existing.id = productId;
+  } else {
     state.products.unshift({
-      id:'p'+Date.now(), name:r.product, threads:r.url, coupang:r.coupang,
+      id: productId || ('p'+Date.now()), name:r.product, threads:r.url, coupang:r.coupang,
       affiliate:'', uses:0, last:'-', active:true
     });
   }
-  save(); renderRecSpaced(); renderPool(); renderQueue(); toast('작업 목록에 담았어요 · 계정별 자동 발행 대기');
+  save(); renderRecSpaced(); renderPool(); renderQueue(); pushQueue(); toast('작업 목록에 담았어요 · 계정별 자동 발행 대기');
 }
 async function passRec(id){
   const r = state.recommendations.find(x=>x.id===id); if(!r) return;
@@ -1913,6 +1920,42 @@ function queueItems(){
   state.queue = ordered.map(it=>it.key);
   return ordered;
 }
+/* 대기열 순서를 시트에 저장 — 발행 엔진이 다음 발행 대상을 이 순서대로 고른다.
+   상품ID가 없는 로컬 항목은 보내지 않는다(다음 동기화에서 서버 목록으로 맞춘다). */
+function queuePayload(){
+  return queueItems().map(it=>{
+    const p = it.rec ? state.products.find(x=>x.name===it.name) : state.products.find(x=>String(x.id)===String(it.prodId));
+    const productId = String((p && p.id) || it.prodId || '');
+    return productId ? {productId, kind:it.kind, name:it.name} : null;
+  }).filter(Boolean);
+}
+let queuePushTimer = null;
+function pushQueue(){
+  if(!API.configured() || !API.token) return;
+  clearTimeout(queuePushTimer);
+  queuePushTimer = setTimeout(()=>{
+    API.call('saveQueue', {items: queuePayload()})
+      .then(res=>{ if(res && Array.isArray(res.items)) applyServerQueue(res.items); })
+      .catch(()=>{ /* 다음 동기화 때 다시 맞춘다 */ });
+  }, 400);
+}
+/* 서버(시트) 대기열 순서를 화면 순서에 반영 — 화면 키(rec:/prod:)로 다시 맞춘다. */
+function applyServerQueue(items){
+  if(!Array.isArray(items) || !items.length) return;
+  const keys = items.map(q=>{
+    const pid = String(q.productId || '');
+    const p = (state.products || []).find(x=>String(x.id)===pid);
+    if(p){
+      const rec = (state.recommendations || []).find(r=>r.status==='taken' && r.product===p.name);
+      return rec ? 'rec:'+rec.id : 'prod:'+p.id;
+    }
+    return 'prod:'+pid;
+  }).filter(Boolean);
+  const rest = (Array.isArray(state.queue) ? state.queue : []).filter(k=>keys.indexOf(k)<0);
+  state.queue = keys.concat(rest);
+  save(); renderQueue();
+}
+
 /* 계정 활동 시간 안에서 20분 슬롯 기준 idx번째 발행 시각 */
 function slotAt(a, idx){
   const from = minutesOf(a.from), to = minutesOf(a.to);
@@ -1975,7 +2018,7 @@ function moveQueueItem(key, dir){
   const j = i + dir;
   if(i < 0 || j < 0 || j >= q.length) return;
   [q[i], q[j]] = [q[j], q[i]];
-  state.queue = q; save(); renderQueue();
+  state.queue = q; save(); renderQueue(); pushQueue();
 }
 async function cancelQueueItem(key){
   if(key.indexOf('rec:') === 0){
@@ -1986,13 +2029,13 @@ async function cancelQueueItem(key){
       try { await API.call('untakeRecommendation', {date: isoToday(), rank: r.rank || 0}); } catch(e){ /* 무시 */ }
     }
     r.status = 'wait';
-    save(); renderRec(); renderPool(); renderQueue();
+    save(); renderRec(); renderPool(); renderQueue(); pushQueue();
     toast('담기를 해제했어요 · 추천 대기로 돌아갔어요');
   } else {
     const p = state.products.find(x=>'prod:' + x.id === key);
     if(!p) return;
     p.active = false;
-    save(); renderPool(); renderQueue();
+    save(); renderPool(); renderQueue(); pushQueue();
     toast('상품을 중지했어요 · 상품 풀에서 다시 켤 수 있어요');
     if(API.configured()){
       API.call('toggleProduct', {id: p.id, active: false}).catch(()=>{});
@@ -2041,7 +2084,12 @@ function renderPerf(){
   }
   const note = $('#perfNote');
   if(note){
-    if(state.perfLive){ note.className = 'pill live'; note.innerHTML = '<svg><use href="#i-shield"/></svg>실시간 연결'; }
+    if(state.perfLive){
+      note.className = 'pill live';
+      note.innerHTML = state.perfHasReport === false
+        ? '<svg><use href="#i-shield"/></svg>실시간 연결 · 리포트 0건'
+        : '<svg><use href="#i-shield"/></svg>실시간 연결';
+    }
     else { note.className = 'pill hot'; note.innerHTML = '<svg><use href="#i-spark"/></svg>데모 데이터'; }
   }
 }
@@ -2056,6 +2104,7 @@ async function loadPerformance(){
         byProduct: (data.byProduct || []).map(p=>({name: p.name || '', clicks: Number(p.clicks || 0), orders: Number(p.orders || 0), revenue: Number(p.revenue || 0)}))
       };
       state.perfLive = true;
+      state.perfHasReport = !!data.hasReport;
       save(); renderPerf();
     }
   }catch(e){ /* 조용히 데모 데이터로 폴백 */ }
@@ -2146,43 +2195,49 @@ const CORE_TEMPLATES = {
     ['별 기대 없이 산 {item}인데','','{pain}, 이제 안 함','{move}','','진작 살 걸 그랬네'],
     ['{item} 결국 샀는데 이거 뭐야','','{pain_eun} 이제 안 함','{move}','','값보다 편해진 게 크더라'],
     ['와씨;; {pain_eun} 나만 그런 줄 알았네','','{item} 하나로 끝냈음','{move}','','진작 알았으면 시간 아꼈네'],
-    ['아니 {item} 이거 왜 이제 알았지 ㅋㅋㅋ','','{pain_i} 제일 싫었는데 이제 안 함','{move}','','나만 몰랐던 거였네;;']
+    ['아니 {item} 이거 왜 이제 알았지 ㅋㅋㅋ','','{pain_i} 제일 싫었는데 이제 안 함','{move}','','나만 몰랐던 거였네;;'],
+    ['{item} 결국 샀는데 이거 뭐야!','','{pain_eun} 이제 안 함','{move}','','값보다 편해진 게 크더라 🙈']
   ],
   '살림고수':[
     ['{pain_i} 통째로 사라졌음','','{item} 하나 두고 나서부터거든','{move}','','집안일 하나 줄어든 게 제일 크더라'],
     ['{item} 하나 들이고 나서 순서가 하나 줄었음','','{pain_eun} 안 하게 됐거든','{move}','','도구 하나 바꾼 게 제일 빨랐네'],
     ['{item} 들인 뒤로 하루가 조금 짧아졌네','','{pain_i} 사라져서 그런가 봄','{move}','','값보다 빠진 일이 크더라'],
-    ['몇만 원씩 쓰지 마. {item} 하나면 끝나더라','','{pain_i} 제일 싫었는데 이제 안 함','{move}','','집안일 하나 줄어든 게 제일 크더라']
+    ['몇만 원씩 쓰지 마. {item} 하나면 끝나더라','','{pain_i} 제일 싫었는데 이제 안 함','{move}','','집안일 하나 줄어든 게 제일 크더라'],
+    ['{pain_i} 통째로 사라졌음!','','{item} 하나 두고 나서부터거든','{move}','','집안일 하나 줄어든 게 제일 크더라 😌']
   ],
   '육아공감':[
     ['애들 자고 나서 {item} 써봤는데 이거 뭐야','','{pain}, 그거 이제 안 함','{move}','','내가 편해진 게 제일 좋더라'],
     ['아이들 다 나가고 {item} 써봤는데','','{pain_i} 제일 번거로웠거든','{move}','','내가 덜 지치는 쪽이 낫더라'],
-    ['{pain} 때문에 힘든 집 있지? 나도 그랬음 ㅠ','','{item} 쓰고부터는 그 일 안 함','{move}','','내가 편해진 게 제일 좋더라']
+    ['{pain} 때문에 힘든 집 있지? 나도 그랬음 ㅠ','','{item} 쓰고부터는 그 일 안 함','{move}','','내가 편해진 게 제일 좋더라'],
+    ['애들 자고 나서 {item} 써봤는데 이거 뭐야 ㅋㅋ','','{pain}, 그거 이제 안 함','{move}','','내가 편해진 게 제일 좋더라 😮‍💨']
   ],
   '질문유도':[
     ['{item}, 이거 쓰는 집 나 말고 또 있지?','','나는 {pain_eul} 이거 하나로 끝냈음','{move}','','너네 집은 어떻게 함?'],
     ['{pain}, 아직도 그렇게 하는 집 있어?','','나는 {item} 쓰고부터 안 함','{move}','','다른 집은 어떤지 궁금하네'],
     ['이런 거 살 때 뭐 보고 고름?','','나는 {item} 하나로 {pain_eul} 끝냈음','{move}','','다른 거 쓰는 집 있으면 알려줘'],
-    ['{pain} 이거 다들 어떻게 버티고 있었어? ㄷㄷ','','나는 {item} 하나로 끝냈음','{move}','','너네 집은 어떻게 함?']
+    ['{pain} 이거 다들 어떻게 버티고 있었어? ㄷㄷ','','나는 {item} 하나로 끝냈음','{move}','','너네 집은 어떻게 함?'],
+    ['{item} 이거 왜 아무도 안 알려줌? ㅋㅋㅋ','','나는 {pain_eul} 이거 하나로 끝냈음','{move}','','너네 집은 어떻게 함? ㅋㅋ']
   ],
   '시크':[
     ['{item}, 딴 거 다 써보고 결국 이걸로 정착함','','{pain}, 이제 안 함. {move}','','값보다 편한 게 크더라'],
     ['{item} 결국 샀음','','{pain_eun} 이걸로 끝났음. {move}','','이 정도면 충분하네'],
     ['{item} 하나 들였음','','{pain_i} 없어졌음. {move}','','다른 건 안 건드림'],
-    ['{pain_eun} 오늘로 끝임','','{item} 하나로 끝냈음. {move}','','값보다 편한 게 크더라']
+    ['{pain_eun} 오늘로 끝임','','{item} 하나로 끝냈음. {move}','','값보다 편한 게 크더라'],
+    ['{item} 하나 들였음','','{pain_i} 없어졌음. {move}','','생각보다 만족스럽네 🙂']
   ],
   '비교반전':[
     ['비싼 거 그만 사. {item} 하나면 됨','','{pain}, 이제 안 함','{move}','','그 돈 아낀 게 제일 만족스럽더라'],
     ['{item} 하나로 정리했음','','{pain_eun} 안 하니까 속이 다 시원함','여러 개 써봤는데 결국 이게 제일 편했음','{move}','','비싼 게 답은 아니더라'],
     ['원래 쓰던 거 다 치웠음. {item} 쓰고 나서','','{pain_i} 제일 번거로웠거든','{move}','','다음에도 이거 살 거임'],
     ['비싼 거 알아보기 전에 {item}부터 써봐','','순서가 반대였음','{pain_i} 제일 번거로웠거든','{move}','','그 돈 아낀 게 제일 만족스럽더라'],
-    ['{pain_eul} 없애려고 비싼 돈 쓰지 마','','{item} 하나면 됨','{move}','','그 돈 아낀 게 제일 만족스럽더라']
+    ['{pain_eul} 없애려고 비싼 돈 쓰지 마','','{item} 하나면 됨','{move}','','그 돈 아낀 게 제일 만족스럽더라'],
+    ['비싼 거 그만 사! {item} 하나면 됨','','{pain}, 이제 안 함 ㅋㅋ','{move}','','그 돈 아낀 게 제일 만족스럽더라 😌']
   ]
 };
 
 /* 품목을 알아보지 못한 상품(상품명만 있음) — 없는 기능은 말하지 않는다. */
 const PLAIN_TEMPLATES = {
-  '찐후기':[['{item} 결국 샀는데','','찾고 있던 거라 이것저것 안 보고 그냥 질렀음','받아보니까 딱 그 용도더라','','오래 쓰면 좋겠네'],['아니 {item} 이거 왜 이제 알았지 ㅋㅋㅋ','','찾고 있던 거라 이것저것 안 보고 그냥 질렀음','받아보니까 딱 그 용도더라','','오래 쓰면 좋겠네']],
+  '찐후기':[['{item} 결국 샀는데','','찾고 있던 거라 이것저것 안 보고 그냥 질렀음','받아보니까 딱 그 용도더라','','오래 쓰면 좋겠네'],['아니 {item} 이거 왜 이제 알았지 ㅋㅋㅋ','','찾고 있던 거라 이것저것 안 보고 그냥 질렀음','받아보니까 딱 그 용도더라','','오래 쓰면 좋겠네 🙈']],
   '살림고수':[['{item} 하나 들였음','','찾던 품목이라 여기저기 비교 안 하고 바로 정했음','지금은 자리 잡고 잘 쓰고 있음','','값보다 오래 쓰는 게 중요하잖아']],
   '육아공감':[['{item} 결국 샀음','','아이 물건 챙기다 보면 이런 게 하나씩 필요하더라','찾던 거라 받아보니까 딱 그 용도임','','내가 편해진 게 제일 좋더라']],
   '질문유도':[['{item}, 이런 거 고를 때 뭐 보고 고름?','','나는 찾던 품목이라 그냥 이걸로 정했음','받아보니까 딱 그 용도더라','','너네 집은 뭐 씀?']],
@@ -2359,14 +2414,21 @@ async function retryLog(idx){
   const l = (state.logs || [])[idx];
   if(!l || l.ok || l.retry) return;
   if(API.configured() && API.token){
+    let res = null;
     try{
-      await API.call('retryLog', {ts: l.ts || l.time || '', accountName: l.acct || '', productName: l.product || ''});
+      res = await API.call('retryLog', {ts: l.ts || l.time || '', accountName: l.acct || '',
+                                        productName: l.product || '', productId: l.pid || '',
+                                        accountNo: l.acctNo || 0});
     }catch(err){
       toast('재시도 요청 실패: ' + err.message);
       return;
     }
     l.retry = true; save(); renderLogs();
-    toast('재시도를 요청했어요 · 다음 엔진 주기에 다시 발행돼요');
+    if(res && res.queued === false){
+      toast(res.message || '재시도 표시만 남겼어요 · 상품을 찾지 못했어요');
+    } else {
+      toast(res && res.message ? res.message : '재시도를 요청했어요 · 다음 엔진 주기에 다시 발행돼요');
+    }
   } else {
     l.retry = true; save(); renderLogs();
     toast('재시도 요청으로 표시했어요 · 백엔드 연결 시 전송돼요');
@@ -2436,9 +2498,12 @@ async function syncBackend(){
     if(Array.isArray(data.logs)){
       state.logs = data.logs.slice(0,50).map(l=>({ts:String(l.ts||''), time:String(l.ts||'').slice(11,16),
         acct:l.accountName||('계정 '+l.accountNo), product:l.productName||'-',
+        pid:String(l.productId||''), acctNo:Number(l.accountNo||0),
         snip:cleanText(l.text||'').split('\n')[0].slice(0,60), link:(l.postUrl||'').replace(/^https?:\/\//,''),
-        ok:String(l.status)==='성공', err:l.note}));
+        ok:String(l.status)==='성공', err:l.note, retry:String(l.retry||'') ? true : false}));
     }
+    /* 시트 대기열 순서가 있으면 화면 순서도 그대로 맞춘다(발행 엔진과 같은 순서). */
+    if(Array.isArray(data.queue) && data.queue.length) applyServerQueue(data.queue);
     const syncNow = new Date();
     state.lastSync = pad2(syncNow.getHours()) + ':' + pad2(syncNow.getMinutes());
     save(); renderRec(); renderPool(); renderAccounts(); renderLogs(); renderQueue(); updateSyncMeta();
