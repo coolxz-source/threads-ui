@@ -937,7 +937,7 @@
       <div class="section-head">
         <div>
           <div class="section-title"><span class="emoji">🗓️</span>대기 목록 <span class="count-chip" id="queueCountChip">0</span></div>
-          <div class="section-desc">담은 추천과 활성 상품이 어떤 계정으로 언제 올라갈지 미리 보여줘요.</div>
+          <div class="section-desc">여기에 넣은 것만 어떤 계정으로 언제 올라갈지 미리 보여줘요.</div>
         </div>
         <button class="btn sm ghost" onclick="renderQueue(); toast('발행 예정을 다시 계산했어요')"><svg><use href="#i-refresh"/></svg>예정 다시 계산</button>
       </div>
@@ -1505,6 +1505,8 @@ async function takeRec(id){
     catch(err){ toast('시트에 담지 못했어요: ' + err.message); return; }
   }
   r.status='taken';
+  state.queue = Array.isArray(state.queue) ? state.queue : [];
+  if(state.queue.indexOf('rec:' + r.id) < 0) state.queue.push('rec:' + r.id);
   const existing = state.products.find(p=>p.name===r.product);
   if(existing){
     if(productId) existing.id = productId;
@@ -1562,7 +1564,9 @@ function poolVisibleRows(){
 }
 function renderPool(){
   const rows = poolVisibleRows();
-  $('#poolList').innerHTML = rows.map(p=>`
+  $('#poolList').innerHTML = rows.map(p=>{
+    const inQ = (Array.isArray(state.queue) ? state.queue : []).indexOf('prod:' + p.id) >= 0;
+    return `
     <div class="pool-row ${p.active?'':'off'}">
       <input type="checkbox" class="sel-check" ${selPool.has(String(p.id))?'checked':''} onchange="togglePoolSel('${p.id}',this.checked)">
       <label class="switch"><input type="checkbox" ${p.active?'checked':''} onchange="toggleProduct('${p.id}',this.checked)"><span></span></label>
@@ -1579,17 +1583,30 @@ function renderPool(){
       <div class="col-status">
         <button class="status-badge as-btn ${p.active?'on':'off'}" title="${p.active?'클릭하면 발행을 중지해요':'클릭하면 다시 활성화해요'}" onclick="toggleProduct('${p.id}',${p.active?'false':'true'})">${p.active?'활성':'중지'}</button>
       </div>
-      <div style="display:flex;gap:6px;justify-content:flex-end">
+      <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center">
+        <button class="btn sm ${inQ?'ghost':'primary'}" onclick="toggleQueueProduct('${p.id}')">${inQ?'대기 중':'대기 넣기'}</button>
         <button class="icon-btn" title="수정" onclick="openEditProduct('${p.id}')"><svg><use href="#i-pen"/></svg></button>
         <button class="icon-btn" title="삭제" onclick="removeProduct('${p.id}')"><svg><use href="#i-trash"/></svg></button>
       </div>
-    </div>`).join('') || `<div style="padding:30px;text-align:center;color:#5d6579;font-size:12.5px">조건에 맞는 상품이 없어요.</div>`;
+    </div>`; }).join('') || `<div style="padding:30px;text-align:center;color:#5d6579;font-size:12.5px">조건에 맞는 상품이 없어요.</div>`;
 
   const active = state.products.filter(p=>p.active).length;
   $('#navPoolCount').textContent = active;
   $('#poolCountChip').textContent = active;
   $('#statPool').innerHTML = active + '<small>개</small>';
   updateSelBars();
+}
+function toggleQueueProduct(id){
+  const p = state.products.find(x=>String(x.id)===String(id)); if(!p) return;
+  const key = 'prod:' + p.id;
+  state.queue = Array.isArray(state.queue) ? state.queue : [];
+  const i = state.queue.indexOf(key);
+  if(i >= 0){ state.queue.splice(i, 1); toast('대기 목록에서 뺐어요 · 작업 목록에는 그대로 있어요'); }
+  else {
+    if(!p.active){ toast('먼저 상품을 활성화해 주세요'); return; }
+    state.queue.push(key); toast('대기 목록에 넣었어요 · 발행 시작을 누르면 올라가요');
+  }
+  save(); renderPool(); renderQueue(); pushQueue();
 }
 async function toggleProduct(id, on){
   const p = state.products.find(x=>x.id===id); if(!p) return;
@@ -1943,22 +1960,20 @@ function renderStats(){
 }
 
 /* ---------- 발행 대기 (예정 · 관리) ---------- */
-/* 큐 항목 = 담긴 추천 + 활성 상품(담긴 추천과 이름이 겹치는 상품은 추천 쪽으로만 한 번) */
+/* 큐 항목 후보 = 담긴 추천 + 활성 상품(담긴 추천과 이름이 겹치는 상품은 추천 쪽으로만 한 번).
+   대기 목록에는 직접 넣은 것만 들어간다 — state.queue에 있는 키만 순서대로 보여주고,
+   활성화만으로는 자동으로 쌓이지 않는다. */
 function queueItems(){
   const taken = state.recommendations.filter(r=>r.status==='taken');
   const takenNames = new Set(taken.map(r=>r.product));
-  const items = [];
-  taken.forEach(r=>items.push({key:'rec:'+r.id, kind:'추천 담기', rec:true, recId:r.id, name:r.product}));
-  state.products.filter(p=>p.active && !takenNames.has(p.name))
-    .forEach(p=>items.push({key:'prod:'+p.id, kind:'작업 목록', rec:false, prodId:p.id, name:p.name}));
-  /* state.queue(키 배열)로 순서 유지 — 새 항목은 뒤에 붙이고, 사라진 항목은 버린다 */
   const byKey = {};
-  items.forEach(it=>{ byKey[it.key] = it; });
+  taken.forEach(r=>{ byKey['rec:'+r.id] = {key:'rec:'+r.id, kind:'추천 담기', rec:true, recId:r.id, name:r.product}; });
+  state.products.filter(p=>p.active && !takenNames.has(p.name))
+    .forEach(p=>{ byKey['prod:'+p.id] = {key:'prod:'+p.id, kind:'작업 목록', rec:false, prodId:p.id, name:p.name}; });
   const ordered = [];
   (Array.isArray(state.queue) ? state.queue : []).forEach(k=>{
     if(byKey[k]){ ordered.push(byKey[k]); delete byKey[k]; }
   });
-  items.forEach(it=>{ if(byKey[it.key]) ordered.push(it); });
   state.queue = ordered.map(it=>it.key);
   return ordered;
 }
@@ -2151,7 +2166,7 @@ function renderQueue(){
         <button class="btn sm ghost" onclick="cancelQueueItem('${it.key}')">취소</button>
       </div>
     </div>`;
-  }).join('') || `<div class="empty-note" style="border:1px dashed var(--line);border-radius:16px;padding:26px;text-align:center;color:var(--dim);font-size:13px">대기 목록이 비어 있어요. 추천을 담거나 상품을 활성화하면 여기에 쌓여요.</div>`;
+  }).join('') || `<div class="empty-note" style="border:1px dashed var(--line);border-radius:16px;padding:26px;text-align:center;color:var(--dim);font-size:13px">대기 목록이 비어 있어요. 추천을 담거나 작업 목록에서 [대기 넣기]를 누르면 여기에 쌓여요.</div>`;
   const chip = $('#queueCountChip'); if(chip) chip.textContent = items.length;
   const nav = $('#navQueueCount'); if(nav) nav.textContent = items.length;
   renderPublishCtl(); updateSelBars();
@@ -2172,21 +2187,16 @@ async function removeFromQueue(key){
       try { await API.call('untakeRecommendation', {date: isoToday(), rank: r.rank || 0}); } catch(e){ /* 무시 */ }
     }
     r.status = 'wait';
-  } else {
-    const p = state.products.find(x=>'prod:' + x.id === key);
-    if(!p) return;
-    p.active = false;
-    if(API.configured()){
-      API.call('toggleProduct', {id: p.id, active: false}).catch(()=>{});
-    }
   }
+  /* 상품은 작업 목록에 활성 그대로 두고, 대기 목록에서만 뺀다 */
+  state.queue = (Array.isArray(state.queue) ? state.queue : []).filter(k=>k !== key);
 }
 async function cancelQueueItem(key){
   const isRec = key.indexOf('rec:') === 0;
   await removeFromQueue(key);
   selQueue.delete(key);
   save(); renderRec(); renderPool(); renderQueue(); pushQueue();
-  toast(isRec ? '담기를 해제했어요 · 추천 대기로 돌아갔어요' : '상품을 중지했어요 · 작업 목록에서 다시 켤 수 있어요');
+  toast(isRec ? '담기를 해제했어요 · 추천 대기로 돌아갔어요' : '대기 목록에서 뺐어요 · 작업 목록에는 그대로 있어요');
 }
 
 /* ---------- 선택 · 전체 삭제 (작업 목록 / 상품 풀) ---------- */
@@ -2202,7 +2212,7 @@ function clearQueueSel(){ selQueue.clear(); renderQueue(); }
 async function deleteSelectedQueue(){
   const keys = queueItems().map(it=>it.key).filter(k=>selQueue.has(k));
   if(!keys.length){ toast('선택한 항목이 없어요'); return; }
-  if(!confirm('선택한 ' + keys.length + '개를 대기 목록에서 뺄까요?\n담은 추천은 대기로 돌아가고, 상품은 중지돼요. (지워지는 건 아니에요)')) return;
+  if(!confirm('선택한 ' + keys.length + '개를 대기 목록에서 뺄까요?\n담은 추천은 대기로 돌아가고, 상품은 대기 목록에서만 빠져요. (지워지는 건 아니에요)')) return;
   for(const key of keys){ await removeFromQueue(key); selQueue.delete(key); }
   if(!queueItems().length && state.publishOn){ state.publishOn = false; state.publishStartedAt = ''; }
   save(); renderRec(); renderPool(); renderQueue(); pushQueue();
@@ -2211,7 +2221,7 @@ async function deleteSelectedQueue(){
 async function clearQueueAll(){
   const items = queueItems();
   if(!items.length){ toast('대기 목록이 이미 비어 있어요'); return; }
-  if(!confirm('대기 목록 ' + items.length + '개를 전부 비울까요?\n담은 추천은 대기로 돌아가고, 상품은 중지돼요. (지워지는 건 아니에요)')) return;
+  if(!confirm('대기 목록 ' + items.length + '개를 전부 비울까요?\n담은 추천은 대기로 돌아가고, 상품은 대기 목록에서만 빠져요. (지워지는 건 아니에요)')) return;
   for(const it of items){ await removeFromQueue(it.key); }
   selQueue.clear();
   state.publishOn = false; state.publishStartedAt = '';
