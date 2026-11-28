@@ -741,7 +741,7 @@
       <div class="section-head">
         <div>
           <div class="section-title"><span class="emoji">✍️</span>문구 · 후킹 설정</div>
-          <div class="section-desc">첫 줄에서 멈추게 하고, 본문은 3~5줄로 짧게 끊어 씁니다. 본문엔 링크·댓글 유도 멘트를 넣지 않고, 링크는 첫 댓글에 자동으로 달아요.</div>
+          <div class="section-desc">첫 줄에 품목과 불편을 같이 넣고, 본문은 어떻게 해결되는지 사람 말투로 씁니다. 본문엔 링크·댓글 유도 멘트를 넣지 않고, 링크는 첫 댓글에 자동으로 달아요.</div>
         </div>
       </div>
       <div class="two-col">
@@ -791,10 +791,10 @@
             </div>
           </div>
           <div class="vars">
-            <span class="var" onclick="toast('본문에 {상품명} 변수가 들어갑니다')">{상품명}</span>
-            <span class="var" onclick="toast('본문에 {가격} 변수가 들어갑니다')">{가격}</span>
-            <span class="var" onclick="toast('본문에 {후킹} 변수가 들어갑니다')">{후킹}</span>
-            <span class="var" onclick="toast('본문에 {계정} 변수가 들어갑니다')">{계정}</span>
+            <span class="var" onclick="toast('첫 줄에 짧은 품목 이름이 들어갑니다')">{품목}</span>
+            <span class="var" onclick="toast('첫 댓글에 정식 상품명이 들어갑니다')">{상품명}</span>
+            <span class="var" onclick="toast('첫 줄 다음에 그때의 불편이 들어갑니다')">{불편}</span>
+            <span class="var" onclick="toast('본문에 어떻게 해결되는지가 들어갑니다')">{해결}</span>
           </div>
         </div>
       </div>
@@ -1056,12 +1056,12 @@ const SEED = {
 };
 
 const STYLES = [
-  {id:'찐후기', name:'반말 찐후기형', desc:'친구한테 말하듯 담담하게. "살까 말까 하다가 그냥 샀는데"로 시작.', tag:'기본'},
-  {id:'살림고수', name:'살림 고수형', desc:'자랑 없이 바뀐 동작만. "집안일 하나가 통째로 사라짐".', tag:'정보'},
-  {id:'육아공감', name:'육아 공감형', desc:'등원 10분 전, 새벽 세탁 같은 장면 하나로 시작해요.', tag:'공감'},
+  {id:'찐후기', name:'입말 찐후기형', desc:'친구한테 카톡하듯. "방충망 밀대, 살까 말까 하다가 그냥 샀어요"처럼 품목과 불편부터.', tag:'기본'},
+  {id:'살림고수', name:'살림 고수형', desc:'자랑 없이 바뀐 동작만. "방충망 씻는 일이 통째로 사라졌어요".', tag:'정보'},
+  {id:'육아공감', name:'육아 공감형', desc:'애들 재운 뒤, 등원 전 같은 장면에 상품을 놓고 시작해요.', tag:'공감'},
   {id:'질문유도', name:'질문 유도형', desc:'답이 갈리는 질문 하나 던지고 내 답을 먼저 씀.', tag:'질문'},
-  {id:'시크', name:'시크 담백형', desc:'말수 적은 반말. "샀다. 잘 쓴다." 감정 없이 끊어요.', tag:'담백'},
-  {id:'비교반전', name:'비교 반전형', desc:'"비싼 거 사지 마"로 끊고 가격·이유로 뒤집기.', tag:'후킹'},
+  {id:'시크', name:'시크 담백형', desc:'말수 적고 담백한 두세 문장. "딴 거 다 써봤는데 결국 이걸로 정착했어요".', tag:'담백'},
+  {id:'비교반전', name:'비교 반전형', desc:'"비싼 거 사지 마세요"로 끊고 이유로 뒤집기.', tag:'후킹'},
   {id:'랜덤', name:'랜덤 믹스', desc:'매 발행마다 6가지 톤을 자동으로 섞어요.', tag:'자동'}
 ];
 
@@ -1671,47 +1671,163 @@ function pickProduct(){
   const p = state.recommendations.find(r=>r.status!=='passed');
   return p || {product:'열수축포장 비닐팩 대형 20매', price:12900};
 }
-/* 미리보기 샘플 — 실제 발행 엔진(bot/copywriter.py) 템플릿과 같은 톤. 본문에 댓글·링크 유도 없음. */
+/* 미리보기 — 실제 발행 엔진(bot/copywriter.py)과 같은 규칙·같은 문장 패턴.
+   첫 줄에 '무슨 상품인지 + 어떤 불편이었는지'가 같이 보이고, 본문이 어떻게 해결되는지 말한다.
+   억지 단문·음슴체('샀다. 잘 쓴다.'), 문어체, 링크·댓글 유도 멘트는 쓰지 않는다. */
 const NL = String.fromCharCode(10);
-const PREVIEW = {
+
+/* 품목별 핵심 — 상품명에 keys(그리고 need)가 들어가면 그 품목의 불편과 해결 동작으로 쓴다.
+   상품에 없는 기능은 넣지 않는다. */
+const CORE_ANGLES = [
+  {keys:['방충망','창틀','창문'], need:['밀대'], item:'방충망 밀대',
+   pain:'방충망 떼서 씻고 다시 끼우던 일', move:'안 떼고 서서 쓱 밀면 먼지가 다 붙어 나와요'},
+  {keys:['창틀','창문'], need:['브러시','브러쉬','틈새'], item:'창틀 틈새 브러시',
+   pain:'창틀 골진 사이 끼어 있던 먼지', move:'브러시 끝으로 긁으면 틈에 낀 먼지가 같이 나와요'},
+  {keys:['만능','페이스트'], need:['크리너','클리너','세정'], item:'만능 크리너',
+   pain:'찌든 때 문질러도 안 지워지던 일', move:'수세미에 묻혀 한 번 문지르면 지워져요'},
+  {keys:['곰팡이','줄눈'], need:[], item:'실리콘 곰팡이 젤',
+   pain:'욕실 줄눈 곰팡이 문지르던 일', move:'바르고 자면 다음 날 물만 부으면 지워져요'},
+  {keys:['후드'], need:['기름때','클리너','필터','세정'], item:'후드 기름때 클리너',
+   pain:'후드 필터 삶아서 닦던 일', move:'뿌려서 15분 두면 기름이 흘러내려요'},
+  {keys:['트레이','정리함','수납함'], need:[], item:'수납 트레이',
+   pain:'싱크대 아래 세제 찾던 일', move:'높이 맞춰 올려두니까 한눈에 보여요'},
+  {keys:['신발'], need:['제습','탈취','냄새'], item:'신발장 제습 팩',
+   pain:'신발장 문 열면 올라오던 냄새', move:'넣어두면 냄새가 조용해져요'},
+  {keys:['제습','탈취','냄새'], need:[], item:'제습 팩',
+   pain:'장 문 열면 올라오던 냄새', move:'넣어두면 냄새가 조용해져요'},
+  {keys:['수축','비닐팩','포장비닐'], need:[], item:'수축포장 비닐',
+   pain:'신발장 먼지 보고 짜증나던 일', move:'감싸서 드라이기 쐈더니 그대로예요'},
+  {keys:['김'], need:['보관','용기','김통'], item:'김 보관 용기',
+   pain:'김 사두면 눅눅해지던 일', move:'냉동해뒀다 전자레인지에 20초 돌리면 바삭해져요'},
+  {keys:['핸디','청소기'], need:['핸디','무선','휴대','미니'], item:'핸디 청소기',
+   pain:'구석 먼지에 청소기 꺼내기 귀찮던 일', move:'한 손으로 켜서 그 자리에서 빨아들이면 끝이에요'},
+  {keys:['텀블러','패킹','반찬통'], need:[], item:'틈새 세척 솔',
+   pain:'텀블러 뚜껑 패킹 닦던 일', move:'솔이 틈에 들어가서 안쪽까지 닦여요'},
+  {keys:['세척'], need:['틈새','브러시','브러쉬'], item:'틈새 세척 솔',
+   pain:'텀블러 뚜껑 패킹 닦던 일', move:'솔이 틈에 들어가서 안쪽까지 닦여요'},
+  {keys:['세척솔','물통솔','빨대솔','솔세트','물통'], need:[], item:'물통 세척 솔',
+   pain:'물통 입구에 손 안 들어가던 일', move:'솔 넣고 돌리면 바닥까지 닿아요'},
+  {keys:['문풍지','문틈','현관'], need:[], item:'문틈새 브러시',
+   pain:'현관문 밑으로 먼지 들어오던 거', move:'붙여두니까 그 틈이 막혀요'},
+  {keys:['이유식'], need:['용기','보관'], item:'이유식 용기',
+   pain:'남은 이유식 냉장고 자리 차지하던 일', move:'접혀서 납작해지니까 자리를 거의 안 차지해요'},
+  {keys:['도시락'], need:['보온','전기'], item:'보온 도시락통',
+   pain:'점심때 식은 밥 먹던 일', move:'전원 꽂아두면 따뜻하게 유지돼요'},
+  {keys:['과일'], need:['건조대','바구니','정리'], item:'과일 건조대',
+   pain:'과일 씻어서 식탁에 쌓아두던 일', move:'돌려서 꺼내면 아래 칸 과일도 한 번에 보여요'},
+  {keys:['받침대','받침'], need:['조리도구','국자','수저','주걱'], item:'실리콘 받침대',
+   pain:'국자 놓을 데 없어 조리대에 흘리던 일', move:'받침대에 올려두면 조리대가 안 더러워져요'},
+  {keys:['착즙','즙짜'], need:[], item:'착즙기',
+   pain:'레몬 짜다 씨 들어가고 손 끈적이던 일', move:'꽂아서 누르면 즙만 아래로 받아져요'},
+  {keys:['얼음틀','얼음트레이'], need:[], item:'원터치 얼음틀',
+   pain:'얼음 빼다 손 시리고 틀 부러지던 일', move:'눌러서 톡 떨어뜨리면 끝이에요'},
+  {keys:['받이망','빨래받이'], need:[], item:'빨래 받이망',
+   pain:'빨래 꺼낼 때 양말이 바닥에 떨어지던 일', move:'걸어두면 밑으로 다 받아져요'},
+];
+
+/* 스타일별 문장 패턴 — {item} {pain} {pain_i} {pain_eun} {move} 치환. 발행 엔진과 같은 문장. */
+const CORE_TEMPLATES = {
   '찐후기':[
-    ['이거 살까 말까 하다가 그냥 샀는데','','첫날엔 뭐가 좋은지 몰랐음','일주일 쓰고 나서 없으면 안 되는 쪽이 됨','','지금은 하나 더 살까 고민 중'],
-    ['별 기대 안 하고 샀는데','','포장 뜯자마자 써봄','생각보다 잘 맞아서 다음 날 하나 더 삼','','이 정도면 산 값은 함'],
-    ['작년에 샀으면 더 좋았을 걸','','현관 정리하다가 매번 하던 일이 있었음','이거 두고 나서 그 일을 안 함','','별거 아닌데 매일 씀']
+    ['{item}, 살까 말까 하다가 그냥 샀어요','','{pain_i} 제일 싫었는데 이제 안 해요','{move}','','왜 이제 알았지 싶어요'],
+    ['별 기대 없이 산 {item}인데','','{pain}, 이제 안 해요','{move}','','진작 살 걸 그랬어요'],
+    ['{item} 샀어요','','{pain_eun} 이제 안 해요','{move}','','값보다 편해진 게 커요']
   ],
   '살림고수':[
-    ['집안일 하나가 통째로 사라짐','','현관 정리하다가 신발 밑에 먼지 보고 그만뒀는데','이거 쓰고 나서 그 일을 안 함','','값보다 빠진 일이 큼'],
-    ['정리 순서 바꾸는 것보다 도구 하나 바꾸는 게 빨랐음','','손이 가는 자리에 두니까 정리하라는 말을 안 해도 됨','','결론은 도구가 반은 함'],
-    ['한 번 사면 몇 년 쓰는 물건은 고르는 기준이 중요함','','싼 걸로 세 번 사는 것보다 한 번 제대로 사는 게 남음','','다음에도 같은 걸 산다']
+    ['{pain_i} 통째로 사라졌어요','','{item} 하나 두고 나서부터거든요','{move}','','집안일 하나 줄어든 게 제일 커요'],
+    ['{item} 하나 들이고 나서 순서가 하나 줄었어요','','{pain_eun} 안 하게 됐거든요','{move}','','도구 하나 바꾼 게 제일 빨랐어요'],
+    ['{item} 들인 뒤로 하루가 조금 짧아졌어요','','{pain_i} 사라져서요','{move}','','값보다 빠진 일이 커요']
   ],
   '육아공감':[
-    ['등원 10분 전에 옷 갈아입히는 집 또 있지','','소매 젖은 채로 나가면 하루 종일 신경 쓰임','이거 두고 나서 그냥 갈아 끼우면 끝','','울 애 말고 내가 편해짐'],
-    ['새벽에 젖은 소매 들고 세탁기 앞에 서 봄','','그 새벽 세탁이 없어짐','젖으면 갈아 끼우면 끝이라 마음이 편함','','이건 진작 살 걸'],
-    ['애 물건은 왜 항상 두 개씩 필요한지 모르겠음','','하나는 쓰고 하나는 빨래통에 있음','이거 두고 나서 그 순환이 끊김','','아침이 조금 짧아짐']
+    ['애들 자고 나서 {item} 써봤어요','','{pain}, 그거 이제 안 해요','{move}','','내가 편해진 게 제일 좋아요'],
+    ['아이들 다 나가고 {item} 써봤는데','','{pain_i} 그게 제일 번거로웠거든요','{move}','','내가 덜 지치는 쪽이 좋아요']
   ],
   '질문유도':[
-    ['이런 거 살 때 뭐 보고 고름? 나는 결국 제일 싼 거 삼','','비싼 거 사놓고 안 쓰는 게 제일 아까워서','이번엔 이걸로 정착함','','너네 집은 뭐 씀?'],
-    ['이거 없이 어떻게 살았지 싶은 물건 있어?','','나는 이거 쓰고 나서 그 자리 정리를 안 해도 됨','','다른 집은 어떤지 궁금함'],
-    ['이거 쓰는 집 있나? 나만 이렇게 쓰는 건가 싶어서','','처음엔 반신반의했는데 지금은 먼저 손이 감','','다른 거 쓰는 집 있으면 알려줘']
+    ['{item}, 이거 쓰는 집 나 말고 또 있죠?','','나는 {pain_eun} 이거 하나로 끝냈어요','{move}','','너네 집은 어떻게 해요?'],
+    ['{pain}, 아직도 그렇게 하는 집 있나요?','','나는 {item} 쓰고부터 안 해요','{move}','','다른 집은 어떤지 궁금해요'],
+    ['이런 거 살 때 뭐 보고 골라요? 나는 {item}으로 정했어요','','{move}','','다른 거 쓰는 집 있으면 알려줘요']
   ],
   '시크':[
-    ['샀다. 잘 쓴다.','','3년 쓴 거 버리고 바꿈','정리 시간이 줄었다. 그게 다임','','다른 건 안 바꿈'],
-    ['정리 끝. 더 안 산다.','','설명은 필요 없음','매일 쓰는 물건이면 이 정도면 충분','','한 번 사면 오래 씀'],
-    ['3년 쓴 거 버리고 바꿈. 후회 없음.','','같은 자리에 두고 매일 씀','','끝.']
+    ['{item}. 딴 거 다 써봤는데 결국 이걸로 정착했어요','','{move}','','값보다 편한 게 커요'],
+    ['{item} 샀어요','','{pain_eun} 끝났어요','{move}','','그 정도면 충분해요'],
+    ['{item} 하나 들였어요','','{pain_i} 없어졌어요','{move}','','다른 건 안 바꿔요']
   ],
   '비교반전':[
-    ['비싼 거 사지 마. 그 돈이면 이거 두 개임','','여러 개 써봤는데 결국 이것만 남음','이유는 단순함. 안 비싸고 안 망가짐','','돈 아낀 게 제일 만족스러움'],
-    ['수납박스 사고 후회한 사람 여기 있음','','버티는 힘은 비싼 거랑 비슷한데 값은 반','','비싼 게 답은 아니었음'],
-    ['원래 쓰던 거 다 처분함. 이거 알고 나서','','싸서 산 건데 비싼 거랑 차이를 못 느끼겠음','','다음에도 이거 삼']
+    ['비싼 거 사지 마세요. {item} 하나면 돼요','','{pain}, 이제 안 해요','{move}','','그 돈 아낀 게 제일 만족스러워요'],
+    ['{item} 하나로 정리했어요','','{pain_eun} 안 하니까요','여러 개 써봤는데 결국 이게 제일 편했어요','{move}','','비싼 게 답은 아니었어요'],
+    ['원래 쓰던 거 다 치웠어요. {item} 쓰고 나서','','{pain_i} 제일 번거로웠거든요','{move}','','다음에도 이거 살 거예요']
   ]
 };
+
+/* 품목을 알아보지 못한 상품(상품명만 있음) — 없는 기능은 말하지 않는다. */
+const PLAIN_TEMPLATES = {
+  '찐후기':[['{item} 샀어요','','찾고 있던 거라 이것저것 안 보고 그냥 질렀는데','받아보니 딱 그 용도예요','','오래 쓰면 좋겠어요']],
+  '살림고수':[['{item} 하나 들였어요','','찾던 품목이라 여기저기 비교하지 않고 바로 정했어요','지금은 자리 잡고 잘 쓰고 있어요','','값보다 오래 쓰는 게 중요하죠']],
+  '육아공감':[['{item} 샀어요','','아이 물건 챙기다 보면 이런 게 하나씩 필요하더라고요','찾던 거라 받아보니 딱 그 용도예요','','내가 편해진 게 제일 좋아요']],
+  '질문유도':[['{item}, 이런 거 고를 때 뭐 보고 고르세요?','','나는 찾던 품목이라 그냥 이걸로 정했어요','받아보니 딱 그 용도예요','','너네 집은 뭐 쓰세요?']],
+  '시크':[['{item}. 필요한 게 이거라 그냥 이걸로 정했어요','','받아보니 딱 그 용도예요','','오래 쓰면 좋겠어요']],
+  '비교반전':[['{item} 사려고 여기저기 볼 필요 없어요','','찾던 품목이면 이걸로 정리되는데 받아보니 딱 그 용도예요','','이 정도면 산 값은 해요']]
+};
+
+const NAME_NOISE = ['다용도','업소용','가정용','대형','소형','미니','휴대용','접이식','높이조절','무선','국산','정품','세트','특대','고급','프리미엄','리필','기획'];
+
+function normName(v){ return String(v || '').toLowerCase().replace(/\s+/g, ''); }
+
+/* 받침에 맞춰 조사를 고른다. */
+function josa(word, withB, withoutB){
+  const t = String(word || '').trim();
+  if(!t) return withoutB;
+  const ch = t[t.length - 1];
+  const code = ch.charCodeAt(0);
+  if(code >= 0xAC00 && code <= 0xD7A3) return ((code - 0xAC00) % 28) ? withB : withoutB;
+  const digit = {'0':0, '1':1, '2':0, '3':1, '4':0, '5':0, '6':1, '7':1, '8':1, '9':0};
+  if(digit[ch] !== undefined) return digit[ch] ? withB : withoutB;
+  return withoutB;
+}
+
+/* 상품명에서 브랜드·규격·수식어를 덜어낸 짧은 품목 이름. */
+function shortItem(raw){
+  let s = String(raw || '').replace(/\[[^\]]*\]|\([^)]*\)/g, ' ');
+  s = s.replace(/\d+(\.\d+)?\s*(ml|g|kg|l|mm|cm|매|개입|개|p|입|팩|개월)/gi, ' ');
+  const tokens = s.split(/[\s,·/]+/).filter(Boolean)
+    .filter(t => NAME_NOISE.indexOf(t) < 0 && !/^\d/.test(t));
+  if(!tokens.length) return '이 물건';
+  let out = tokens.slice(0, 3).join(' ');
+  if(out.length > 16) out = tokens.slice(-2).join(' ');
+  return out || '이 물건';
+}
+
+function coreOf(productName){
+  const name = normName(productName);
+  for(const a of CORE_ANGLES){
+    if(!a.keys.some(k => name.indexOf(normName(k)) >= 0)) continue;
+    if(a.need && a.need.length && !a.need.some(k => name.indexOf(normName(k)) >= 0)) continue;
+    return {known:true, item:a.item, pain:a.pain, move:a.move};
+  }
+  return {known:false, item:shortItem(productName), pain:'', move:''};
+}
+
+function buildPreviewLines(style, productName){
+  const core = coreOf(productName);
+  const table = core.known ? CORE_TEMPLATES : PLAIN_TEMPLATES;
+  const patterns = table[style] || table['찐후기'];
+  const pattern = patterns[Math.abs(previewTick) % patterns.length];
+  const pain = core.pain || '';
+  const slots = {
+    item: core.item,
+    pain: pain,
+    move: core.move || '',
+    pain_i: pain + josa(pain, '이', '가'),
+    pain_eun: pain + josa(pain, '은', '는'),
+    pain_eul: pain + josa(pain, '을', '를')
+  };
+  return pattern.map(line => line.replace(/\{(pain_i|pain_eun|pain_eul|item|pain|move)\}/g, (m, k) => slots[k]));
+}
 function buildPreview(force){
   if(force) previewTick++;
   const p = pickProduct();
-  const styleKeys = Object.keys(PREVIEW);
+  const styleKeys = Object.keys(CORE_TEMPLATES);
   const stylePool = state.style==='랜덤' ? styleKeys[Math.floor(Math.random()*styleKeys.length)] : state.style;
-  const posts = PREVIEW[stylePool] || PREVIEW['찐후기'];
-  const lines = posts[previewTick % posts.length];
+  const lines = buildPreviewLines(stylePool, p.product || p.name || '');
   const hook = lines[0];
   const rest = lines.slice(1);
   const acct = state.accounts.find(a=>a.status==='connected') || state.accounts[0];
@@ -1726,7 +1842,7 @@ function buildPreview(force){
     (disc
       ? `<span class="disc">${esc(disc)}</span>`
       : `<span class="disc" style="color:#ff93a5">대가성 문구가 비어 있어요 · 발행 중단</span>`) +
-    `<b>${esc(p.product)}</b><br>` +
+    `<b>${esc(p.product || p.name || '')}</b><br>` +
     `👉 https://link.coupang.com/a/hvQ2x1`;
 
   const n = state.disclosure.length;
