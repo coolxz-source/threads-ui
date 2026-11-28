@@ -420,6 +420,60 @@
   .secret-note .t{font-size:11.5px;font-weight:700;color:#f3cf6b}
   .secret-note .d{font-size:11px;color:#9a927a;line-height:1.55;margin-top:2px}
 
+  /* ---------- performance (실적) ---------- */
+  .ptable-head,.ptable-row{display:grid;gap:12px;padding:11px 16px;align-items:center}
+  .ptable-head{font-size:10.5px;font-weight:700;color:var(--dim);letter-spacing:.03em;background:rgba(255,255,255,.03);border-bottom:1px solid var(--line)}
+  .ptable-row{border-bottom:1px solid rgba(255,255,255,.04);font-size:12.5px;transition:background .15s ease}
+  .ptable-row:last-child{border-bottom:0}
+  .ptable-row:hover{background:rgba(255,255,255,.022)}
+  .ptable-head.a,.ptable-row.a{grid-template-columns:minmax(0,1.7fr) 84px 70px 84px 112px}
+  .ptable-head.p,.ptable-row.p{grid-template-columns:minmax(0,1.9fr) 84px 70px 84px 112px}
+  .pt-num{font-variant-numeric:tabular-nums;font-weight:680;text-align:right}
+  .ptable-head .pt-num{text-align:right}
+  .pt-name{font-weight:680;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.01em}
+  .pt-sub{font-size:10.5px;color:var(--dim);margin-top:1px}
+  .pt-click{color:#ffb0be;font-weight:760}
+
+  /* ---------- persona chips (계정별 페르소나) ---------- */
+  .persona-box{margin-top:12px;border-top:1px dashed var(--line);padding-top:11px}
+  .persona-label{font-size:10.5px;font-weight:650;color:var(--dim);margin-bottom:7px;display:flex;justify-content:space-between;gap:8px}
+  .persona-label b{color:#c4b0fa;font-weight:700;white-space:nowrap}
+  .persona-chips{display:flex;gap:5px;flex-wrap:wrap}
+  .pchip{
+    font-size:11px;font-weight:650;padding:5px 10px;border-radius:99px;
+    border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);
+    transition:background .16s ease,color .16s ease,border-color .16s ease,transform .16s ease;
+  }
+  .pchip:hover{color:var(--text);border-color:var(--line-strong);transform:translateY(-1px)}
+  .pchip:active{transform:scale(.96)}
+  .pchip:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(139,92,246,.35)}
+  .pchip.on{background:rgba(139,92,246,.17);border-color:rgba(139,92,246,.52);color:#d9ceff;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+  .persona-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#d9ceff;background:rgba(139,92,246,.13);border:1px solid rgba(139,92,246,.3);padding:7px 10px;border-radius:99px;white-space:nowrap}
+  select.inp{cursor:pointer}
+
+  /* ---------- publish queue (발행 대기) ---------- */
+  .queue-list{display:grid;gap:9px}
+  .queue-row{
+    display:flex;align-items:center;gap:12px;
+    border:1px solid var(--line);border-radius:15px;padding:12px 14px;
+    background:linear-gradient(160deg,rgba(255,255,255,.04),rgba(255,255,255,.012));
+    
+    transition:border-color .18s ease,transform .18s ease;
+  }
+  .queue-row:hover{border-color:rgba(255,255,255,.14)}
+  .queue-no{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:grid;place-items:center;font-size:11.5px;font-weight:800;background:rgba(255,255,255,.07);color:#c8cede;font-variant-numeric:tabular-nums}
+  .queue-main{flex:1;min-width:0}
+  .queue-name{font-size:13px;font-weight:680;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.01em}
+  .queue-meta{font-size:11px;color:var(--dim);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .queue-when{font-size:12px;font-weight:750;color:#ffd3da;white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
+  .queue-when small{display:block;font-size:10px;color:var(--dim);font-weight:600;margin-top:1px}
+  .queue-btns{display:flex;gap:5px;flex:0 0 auto}
+  .kind-chip{font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:5px;background:rgba(90,169,255,.1);color:#8ec2ff;border:1px solid rgba(90,169,255,.18)}
+  .kind-chip.rec{background:rgba(255,77,109,.1);color:#ff9fb1;border-color:rgba(255,77,109,.18)}
+
+  /* log result cell (재시도) */
+  .log-result{display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+
   /* modal */
   .backdrop{
     position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:18px;
@@ -509,12 +563,20 @@
     .log-row{grid-template-columns:1fr auto;gap:4px 10px;padding:11px 12px}
     .log-row .log-snip{grid-column:1/-1}
     .log-row .log-prod{grid-column:1/-1;white-space:normal}
+    .ptable-head.a,.ptable-row.a,.ptable-head.p,.ptable-row.p{grid-template-columns:minmax(0,1.35fr) 54px 42px 54px 74px;gap:7px;padding:10px 12px}
+    .ptable-row{font-size:11.5px}
+    .pt-sub{display:none}
+    .queue-row{flex-wrap:wrap;gap:9px}
+    .queue-when{text-align:left}
+    .queue-btns{margin-left:auto}
     .mobile-nav{
       display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;
       background:rgba(10,11,16,.92);backdrop-filter:blur(16px);border-top:1px solid var(--line);
       padding:7px 4px calc(7px + env(safe-area-inset-bottom));
+      overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
     }
-    .mobile-nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;font-weight:650;color:var(--dim);padding:4px 0;position:relative}
+    .mobile-nav::-webkit-scrollbar{display:none}
+    .mobile-nav button{flex:1 0 auto;min-width:52px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;font-weight:650;color:var(--dim);padding:4px 6px;position:relative;white-space:nowrap}
     .mobile-nav button .ic{width:19px;height:19px}
     .mobile-nav button.active{color:#ff8fa5}
     .mobile-nav button .m-badge{position:absolute;top:0;right:calc(50% - 17px);background:var(--hot);color:#fff;font-size:8px;font-weight:800;border-radius:99px;padding:1px 4px;line-height:1.2}
@@ -554,6 +616,9 @@
     <symbol id="i-copy" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" d="M9 9V5h10v10h-4M5 9h10v10H5z"/></symbol>
     <symbol id="i-spark" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l1.8 5.7L19.5 9.5l-5.7 1.8L12 17l-1.8-5.7L4.5 9.5l5.7-1.8L12 2Zm6.5 11l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6Z"/></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7"/><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M12 7v5l3.5 2"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M4 20h16M7 20v-5M12 20V6M17 20v-8"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m6-6-6 6-6-6"/></symbol>
     <symbol id="i-play-sm" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z"/></symbol>
   </defs>
 </svg>
@@ -577,6 +642,9 @@
       <button class="nav-btn" data-tab="pool">
         <svg class="ic"><use href="#i-box"/></svg>상품 풀<span class="nav-badge neutral" id="navPoolCount">12</span>
       </button>
+      <button class="nav-btn" data-tab="queue">
+        <svg class="ic"><use href="#i-clock"/></svg>발행 대기<span class="nav-badge neutral" id="navQueueCount">0</span>
+      </button>
       <button class="nav-btn" data-tab="accounts">
         <svg class="ic"><use href="#i-users"/></svg>계정 관리<span class="nav-badge neutral" id="navAcctCount">-</span>
       </button>
@@ -586,12 +654,16 @@
       <button class="nav-btn" data-tab="logs">
         <svg class="ic"><use href="#i-log"/></svg>발행 로그 · 설정
       </button>
+      <button class="nav-btn" data-tab="perf">
+        <svg class="ic"><use href="#i-chart"/></svg>실적
+      </button>
     </nav>
 
     <div class="sidebar-foot">
       <div class="engine-card">
         <div class="engine-row" id="engineRow"><span class="dot"></span>발행 엔진 정상</div>
         <div class="engine-meta" id="engineMeta">다음 발행 <b style="color:#aeb7c9">-</b><br>연결된 계정 없음</div>
+        <div class="engine-meta" id="syncMeta" style="margin-top:2px">마지막 동기화 -</div>
       </div>
       <div class="ver">v1.0 · Google Sheets + Actions</div>
     </div>
@@ -741,7 +813,7 @@
       <div class="section-head">
         <div>
           <div class="section-title"><span class="emoji">✍️</span>문구 · 후킹 설정</div>
-          <div class="section-desc">첫 줄에 품목과 불편을 같이 넣고, 본문은 어떻게 해결되는지 사람 말투로 씁니다. 본문엔 링크·댓글 유도 멘트를 넣지 않고, 링크는 첫 댓글에 자동으로 달아요.</div>
+          <div class="section-desc">첫 줄은 리액션·선언·품목+불편 중 하나로 열고, 첫 세 줄 안에 품목과 불편, 해결이 다 드러나게 완전 반말 수다 톤으로 씁니다. 해요체 블로그 요약문은 쓰지 않아요. 본문엔 링크·댓글 유도 멘트를 넣지 않고, 링크는 첫 댓글에 자동으로 달아요.</div>
         </div>
       </div>
       <div class="two-col">
@@ -752,6 +824,7 @@
               <span class="card-sub">Gemini</span>
             </div>
             <div class="style-list" id="styleList"></div>
+            <div class="hint" style="margin-top:9px"><span>계정별 페르소나가 걸린 계정은 그 페르소나 중에서 랜덤으로 뽑고, 없는 계정만 여기서 고른 기본값을 써요.</span></div>
           </div>
           <div class="card">
             <div class="card-head">
@@ -771,6 +844,11 @@
             <div class="card-title"><span class="num">3</span>후킹 미리보기</div>
             <button class="btn sm ghost" onclick="buildPreview(true)"><svg><use href="#i-refresh"/></svg>다시 생성</button>
           </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+            <select class="inp" id="prevAcctSel" style="flex:1;min-width:150px" onchange="setPreviewAcct(this.value)"></select>
+            <span class="persona-badge" id="prevPersonaBadge">페르소나 · -</span>
+          </div>
+          <div class="hint" style="margin:-4px 0 10px"><span>계정에 페르소나가 여러 개 걸려 있으면 [다시 생성]마다 그중 하나가 랜덤으로 뽑혀요. 미리보기 문장은 발행 엔진과 같은 패턴으로 만들어요.</span></div>
           <div class="phone">
             <div class="thread-ui">
               <div class="thread-avatar" id="prevAvatar">원</div>
@@ -807,8 +885,13 @@
           <div class="section-title"><span class="emoji">📊</span>발행 로그 · 설정</div>
           <div class="section-desc">최근 7일 발행 내역과 백엔드 연결 상태를 확인합니다.</div>
         </div>
-        <div class="seg" id="logRangeSeg">
-          <button class="on" data-r="today" onclick="setLogRange('today')">오늘</button><button data-r="7d" onclick="setLogRange('7d')">7일</button><button data-r="all" onclick="setLogRange('all')">전체</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <div class="seg" id="logResultSeg">
+            <button class="on" data-f="all" onclick="setLogFilter('all')">전체</button><button data-f="ok" onclick="setLogFilter('ok')">성공만</button><button data-f="fail" onclick="setLogFilter('fail')">실패만</button>
+          </div>
+          <div class="seg" id="logRangeSeg">
+            <button class="on" data-r="today" onclick="setLogRange('today')">오늘</button><button data-r="7d" onclick="setLogRange('7d')">7일</button><button data-r="all" onclick="setLogRange('all')">전체</button>
+          </div>
         </div>
       </div>
 
@@ -838,6 +921,84 @@
         </div>
       </div>
     </section>
+    <!-- ================= TAB: QUEUE ================= -->
+    <section class="tab-panel" id="tab-queue">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="emoji">🗓️</span>발행 대기 <span class="count-chip" id="queueCountChip">0</span></div>
+          <div class="section-desc">담은 추천과 활성 상품이 어떤 계정으로 언제 올라갈지 미리 보여줘요.</div>
+        </div>
+        <button class="btn sm ghost" onclick="renderQueue(); toast('발행 예정을 다시 계산했어요')"><svg><use href="#i-refresh"/></svg>예정 다시 계산</button>
+      </div>
+
+      <div class="queue-list" id="queueList"></div>
+
+      <div class="rec-tip">
+        <svg><use href="#i-shield"/></svg>
+        <div>이 화면은 <b style="color:#c8cede">발행 예정 · 관리용</b>이에요. 실제 발행은 백엔드 봇이 20분 주기로 처리하고, 여기서 순서를 바꾸거나 취소하면 다음 발행부터 반영돼요. 예정 시각은 계정별 활동 시간 안에서 계산한 값이라 실제 발행과 조금 차이 날 수 있어요.</div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: PERF ================= -->
+    <section class="tab-panel" id="tab-perf">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="emoji">💰</span>실적 리포트 <span class="count-chip">최근 7일</span></div>
+          <div class="section-desc">쿠팡 파트너스 기준 실적이에요. 조회수보다 <b style="color:#ffb0be">클릭</b>이 핵심 지표예요.</div>
+        </div>
+        <span class="pill hot" id="perfNote"><svg><use href="#i-spark"/></svg>데모 데이터</span>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="k"><svg width="12" height="12" style="color:#ff8fa5"><use href="#i-fire"/></svg>총 클릭</div>
+          <div class="v" id="perfClicks">0<small>회</small></div>
+          <div class="sub">최근 7일 · 전 계정 합산</div>
+        </div>
+        <div class="stat">
+          <div class="k"><svg width="12" height="12" style="color:#86efac"><use href="#i-check"/></svg>총 주문</div>
+          <div class="v" id="perfOrders">0<small>건</small></div>
+          <div class="sub">클릭 후 24시간 내 구매</div>
+        </div>
+        <div class="stat">
+          <div class="k"><svg width="12" height="12" style="color:#8ec2ff"><use href="#i-chart"/></svg>총 수익</div>
+          <div class="v" id="perfRevenue">0<small>원</small></div>
+          <div class="sub">파트너스 수수료 합산</div>
+        </div>
+        <div class="stat">
+          <div class="k"><svg width="12" height="12" style="color:#c4b5fd"><use href="#i-repeat"/></svg>평균 전환율</div>
+          <div class="v" id="perfConv">0<small>%</small></div>
+          <div class="sub">주문 ÷ 클릭</div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <div>
+          <div class="section-title">계정별 실적</div>
+          <div class="section-desc">어느 계정이 클릭을 만드는지 비교해요.</div>
+        </div>
+      </div>
+      <div class="pool" style="margin-bottom:20px">
+        <div class="ptable-head a"><div>계정</div><div class="pt-num">클릭</div><div class="pt-num">주문</div><div class="pt-num">전환율</div><div class="pt-num">수익</div></div>
+        <div id="perfAcctList"></div>
+      </div>
+
+      <div class="section-head">
+        <div>
+          <div class="section-title">상품별 실적</div>
+          <div class="section-desc">클릭 높은 순으로 정렬했어요.</div>
+        </div>
+      </div>
+      <div class="pool">
+        <div class="ptable-head p"><div>상품</div><div class="pt-num">클릭</div><div class="pt-num">주문</div><div class="pt-num">전환율</div><div class="pt-num">수익</div></div>
+        <div id="perfProdList"></div>
+      </div>
+
+      <div class="rec-tip">
+        <svg><use href="#i-shield"/></svg>
+        <div>백엔드가 연결되면 쿠팡 파트너스 리포트를 불러와 실제 숫자로 교체돼요. 연결 전에는 데모 숫자로 화면만 확인할 수 있어요.</div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -845,9 +1006,11 @@
 <nav class="mobile-nav" id="mobileNav">
   <button class="active" data-tab="recommend"><svg class="ic"><use href="#i-fire"/></svg>추천<span class="m-badge">4</span></button>
   <button data-tab="pool"><svg class="ic"><use href="#i-box"/></svg>상품풀</button>
+  <button data-tab="queue"><svg class="ic"><use href="#i-clock"/></svg>대기</button>
   <button data-tab="accounts"><svg class="ic"><use href="#i-users"/></svg>계정</button>
   <button data-tab="copy"><svg class="ic"><use href="#i-pen"/></svg>문구</button>
   <button data-tab="logs"><svg class="ic"><use href="#i-log"/></svg>로그</button>
+  <button data-tab="perf"><svg class="ic"><use href="#i-chart"/></svg>실적</button>
 </nav>
 
 <!-- add product modal -->
@@ -1037,11 +1200,11 @@ const SEED = {
     {id:'p12', name:'회전형 3단 과일 건조대', threads:'https://www.threads.com/@kitchen_ok/post/DgA1nHpM9wQ', coupang:'https://www.coupang.com/vp/products/1534567890', affiliate:'', uses:3, last:'11.21', active:true}
   ],
   accounts: [
-    {id:1, name:'우리집 살림', handle:'@woori_salim', status:'connected', goal:7, today:6, from:'08:00', to:'22:00', variant:'crop', next:'20:40'},
-    {id:2, name:'해담이 엄마', handle:'@haedam_mom', status:'connected', goal:7, today:5, from:'09:30', to:'23:00', variant:'flip', next:'21:10'},
-    {id:3, name:'알뜰 주부 일기', handle:'@altteul_life', status:'connected', goal:7, today:7, from:'07:00', to:'21:00', variant:'original', next:'내일 07:20'},
-    {id:4, name:'리빙 꿀팁 저장소', handle:'@living_tips', status:'pending', goal:7, today:2, from:'10:00', to:'23:30', variant:'crop', next:'토큰 필요'},
-    {id:5, name:'육아 살림 노트', handle:'@baby_home_note', status:'pending', goal:7, today:1, from:'11:00', to:'22:00', variant:'original', next:'토큰 필요'}
+    {id:1, name:'우리집 살림', handle:'@woori_salim', status:'connected', goal:7, today:6, from:'08:00', to:'22:00', variant:'crop', next:'20:40', personas:['찐후기','살림고수'], tokenExp:'2027-01-12'},
+    {id:2, name:'해담이 엄마', handle:'@haedam_mom', status:'connected', goal:7, today:5, from:'09:30', to:'23:00', variant:'flip', next:'21:10', personas:['육아공감','찐후기','질문유도'], tokenExp:'2026-12-03'},
+    {id:3, name:'알뜰 주부 일기', handle:'@altteul_life', status:'connected', goal:7, today:7, from:'07:00', to:'21:00', variant:'original', next:'내일 07:20', personas:[], tokenExp:'2026-12-21'},
+    {id:4, name:'리빙 꿀팁 저장소', handle:'@living_tips', status:'pending', goal:7, today:2, from:'10:00', to:'23:30', variant:'crop', next:'토큰 필요', personas:['시크'], tokenExp:''},
+    {id:5, name:'육아 살림 노트', handle:'@baby_home_note', status:'pending', goal:7, today:1, from:'11:00', to:'22:00', variant:'original', next:'토큰 필요', personas:[], tokenExp:''}
   ],
   logs: [
     {time:'19:42', acct:'알뜰 주부 일기', product:'주방 후드 기름때 클리너 500ml', snip:'후드 필터 새로 사지 마. 15분 담가두면 원래 색 돌아옴...', link:'threads.com/@altteul_life/post/DgP1...', ok:true},
@@ -1050,19 +1213,38 @@ const SEED = {
     {time:'17:41', acct:'알뜰 주부 일기', product:'열수축포장 비닐팩 대형 20매', snip:'이거 살까 말까 하다가 그냥 샀는데...', link:'threads.com/@altteul_life/post/DgK1...', ok:false, err:'미디어 처리 실패 (재시도 예약)'},
     {time:'16:58', acct:'우리집 살림', product:'아이 신발장 제습 탈취 미니 팩 10P', snip:'애 운동화 냄새, 신발장 문 열면 진동했음...', link:'threads.com/@woori_salim/post/DgJ7...', ok:true}
   ],
+  /* 실적 데모 데이터 — 백엔드 getPerformance 가 붙으면 실제 숫자로 교체된다. 계정·상품 이름은 위 시드와 맞춘다. */
+  performance: {
+    byAccount: [
+      {name:'알뜰 주부 일기', handle:'@altteul_life', clicks:489, orders:41, revenue:68400},
+      {name:'우리집 살림', handle:'@woori_salim', clicks:412, orders:31, revenue:51200},
+      {name:'해담이 엄마', handle:'@haedam_mom', clicks:356, orders:24, revenue:39800},
+      {name:'육아 살림 노트', handle:'@baby_home_note', clicks:121, orders:9, revenue:14700},
+      {name:'리빙 꿀팁 저장소', handle:'@living_tips', clicks:98, orders:6, revenue:9400}
+    ],
+    byProduct: [
+      {name:'주방 후드 기름때 클리너 500ml', clicks:268, orders:23, revenue:41200},
+      {name:'열수축포장 비닐팩 대형 20매', clicks:231, orders:18, revenue:29700},
+      {name:'싱크대 아래 높이조절 정리 트레이 2P', clicks:204, orders:16, revenue:33800},
+      {name:'욕실 곰팡이 제거 젤 120g', clicks:187, orders:15, revenue:22100},
+      {name:'전자레인지용 김 보관 용기 세트', clicks:142, orders:11, revenue:15400},
+      {name:'아이 신발장 제습 탈취 미니 팩 10P', clicks:119, orders:9, revenue:12800}
+    ]
+  },
+  queue: [],
   style:'찐후기',
   disclosure: DISCLOSURE_DEFAULT,
   gasUrl:''
 };
 
 const STYLES = [
-  {id:'찐후기', name:'입말 찐후기형', desc:'친구한테 카톡하듯. "방충망 밀대, 살까 말까 하다가 그냥 샀어요"처럼 품목과 불편부터.', tag:'기본'},
-  {id:'살림고수', name:'살림 고수형', desc:'자랑 없이 바뀐 동작만. "방충망 씻는 일이 통째로 사라졌어요".', tag:'정보'},
-  {id:'육아공감', name:'육아 공감형', desc:'애들 재운 뒤, 등원 전 같은 장면에 상품을 놓고 시작해요.', tag:'공감'},
-  {id:'질문유도', name:'질문 유도형', desc:'답이 갈리는 질문 하나 던지고 내 답을 먼저 씀.', tag:'질문'},
-  {id:'시크', name:'시크 담백형', desc:'말수 적고 담백한 두세 문장. "딴 거 다 써봤는데 결국 이걸로 정착했어요".', tag:'담백'},
-  {id:'비교반전', name:'비교 반전형', desc:'"비싼 거 사지 마세요"로 끊고 이유로 뒤집기.', tag:'후킹'},
-  {id:'랜덤', name:'랜덤 믹스', desc:'매 발행마다 6가지 톤을 자동으로 섞어요.', tag:'자동'}
+  {id:'찐후기', name:'입말 찐후기형', desc:'친구한테 수다 떨듯 완전 반말. "아니 방충망 안 떼고 저렇게 닦는 거였어? ㄷㄷ"처럼 리액션부터. ㅋㅋㅋ·;;도 자연스럽게.', tag:'기본'},
+  {id:'살림고수', name:'살림 고수형', desc:'자랑 없이 바뀐 동작만 반말로. "방충망 씻는 일이 통째로 사라졌음".', tag:'정보'},
+  {id:'육아공감', name:'육아 공감형', desc:'애들 자고 나서, 등원 전 같은 장면에 상품을 놓고 반말로 시작함.', tag:'공감'},
+  {id:'질문유도', name:'질문 유도형', desc:'답이 갈리는 질문 하나 던지고 내 답을 먼저 씀. "아직도 떼서 씻는 집 있어?"', tag:'질문'},
+  {id:'시크', name:'시크 담백형', desc:'말수 적고 담백하게, 짧아도 끝까지 쓴 반말 문장. "딴 거 다 써보고 결국 이걸로 정착함".', tag:'담백'},
+  {id:'비교반전', name:'비교 반전형', desc:'"비싼 돈 쓰지 마" 뼈대로 끊고 반말로 뒤집기.', tag:'후킹'},
+  {id:'랜덤', name:'랜덤 믹스', desc:'매 발행마다 6가지 반말 톤을 자동으로 섞음.', tag:'자동'}
 ];
 
 let state = load();
@@ -1196,15 +1378,19 @@ function toast(msg){
 const TITLES = {
   recommend:['오늘의 <span class="accent">추천</span> 스레드','오늘의 추천'],
   pool:['상품 <span class="accent">풀</span>','상품 풀'],
+  queue:['발행 <span class="accent">대기</span> 목록','발행 대기'],
   accounts:['계정 <span class="accent">관리</span>','계정 관리'],
   copy:['문구 · <span class="accent">후킹</span>','문구 · 후킹'],
-  logs:['발행 <span class="accent">로그</span>','발행 로그']
+  logs:['발행 <span class="accent">로그</span>','발행 로그'],
+  perf:['실적 <span class="accent">리포트</span>','실적']
 };
 function go(tab){
   $$('.tab-panel').forEach(p=>p.classList.toggle('active', p.id === 'tab-'+tab));
   $$('#sidebarNav .nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   $$('#mobileNav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   $('#pageTitle').innerHTML = TITLES[tab][0];
+  if(tab==='queue') renderQueue();
+  if(tab==='perf') renderPerf();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 $$('#sidebarNav .nav-btn, #mobileNav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
@@ -1285,7 +1471,7 @@ async function takeRec(id){
       affiliate:'', uses:0, last:'-', active:true
     });
   }
-  save(); renderRecSpaced(); renderPool(); toast('작업 목록에 담았어요 · 계정별 자동 발행 대기');
+  save(); renderRecSpaced(); renderPool(); renderQueue(); toast('작업 목록에 담았어요 · 계정별 자동 발행 대기');
 }
 async function passRec(id){
   const r = state.recommendations.find(x=>x.id===id); if(!r) return;
@@ -1294,7 +1480,7 @@ async function passRec(id){
     try { await API.call('passRecommendation', {date: isoToday(), rank: r.rank || rank}); }
     catch(err){ toast('시트 저장 실패: ' + err.message); return; }
   }
-  r.status='passed'; save(); renderRecSpaced(); toast('패스했어요 · 오늘 추천에서 숨깁니다');
+  r.status='passed'; save(); renderRecSpaced(); renderQueue(); toast('패스했어요 · 오늘 추천에서 숨깁니다');
 }
 async function takeAll(){
   const waits = state.recommendations.filter(r=>r.status==='wait');
@@ -1359,7 +1545,7 @@ function renderPool(){
 }
 async function toggleProduct(id, on){
   const p = state.products.find(x=>x.id===id); if(!p) return;
-  p.active = on; save(); renderPool(); toast(on?'상품을 활성화했어요':'상품을 중지했어요');
+  p.active = on; save(); renderPool(); renderQueue(); toast(on?'상품을 활성화했어요':'상품을 중지했어요');
   if(API.configured()){
     try { await API.call('toggleProduct', {id, active:on}); }
     catch(err){ toast('시트 저장 실패: ' + err.message); }
@@ -1372,7 +1558,7 @@ async function removeProduct(id){
     try { await API.call('deleteProduct', {id}); }
     catch(err){ toast('시트 삭제 실패: ' + err.message); return; }
   }
-  state.products = state.products.filter(x=>x.id!==id); save(); renderPool(); toast('삭제했어요');
+  state.products = state.products.filter(x=>x.id!==id); save(); renderPool(); renderQueue(); toast('삭제했어요');
 }
 function openAddProduct(){ closeEdit(); $('#modal').classList.add('open'); setTimeout(()=>$('#mThreads').focus(),50); }
 function closeModal(){ $('#modal').classList.remove('open'); }
@@ -1480,6 +1666,16 @@ async function saveProduct(){
   const threads = $('#mThreads').value.trim().split('\n').filter(Boolean);
   if(!name) return toast('상품명을 입력해주세요');
   if(!threads.length) return toast('스레드 링크를 입력해주세요');
+  /* 중복 방지 — 같은 스레드 링크가 이미 상품 풀에 있으면 추가를 막는다 (입력 묶음 안 중복도 포함) */
+  const normUrl = u => String(u || '').trim().replace(/\/+$/, '');
+  const inPool = new Set(state.products.map(p=>normUrl(p.threads)));
+  const inBatch = new Set();
+  for(const u of threads){
+    if(inPool.has(normUrl(u)) || inBatch.has(normUrl(u))){
+      return toast('이미 상품 풀에 있는 스레드 링크예요 · 중복 추가를 막았어요');
+    }
+    inBatch.add(normUrl(u));
+  }
   const coupang = $('#mCoupang').value.trim();
   const affiliate = $('#mAffiliate').value.trim();
   const note = $('#mBody').value.trim();
@@ -1495,7 +1691,7 @@ async function saveProduct(){
     state.products.unshift({id, name:item.name, threads:item.threadsUrl, coupang,
       affiliate, note, uses:0, last:'-', active});
   }
-  save(); renderPool(); closeModal();
+  save(); renderPool(); renderQueue(); closeModal();
   ['#mName','#mThreads','#mCoupang','#mAffiliate','#mBody'].forEach(s=>$(s).value='');
   toast(threads.length>1 ? `${threads.length}개 상품을 담았어요` : '상품을 담았어요');
 }
@@ -1543,9 +1739,15 @@ function renderAccounts(){
           <input class="inp" type="time" value="${a.to}" onchange="setAcct(${i},'to',this.value)">
         </div>
       </div>
+      <div class="persona-box">
+        <div class="persona-label"><span>페르소나 · 발행마다 랜덤</span><b id="personaHint${i}">${personaHintText(a)}</b></div>
+        <div class="persona-chips">
+          ${personaStyles().map(s=>`<button class="pchip ${(a.personas||[]).includes(s.id)?'on':''}" onclick="togglePersona(${i},'${s.id}',this)">${esc(s.id)}</button>`).join('')}
+        </div>
+      </div>
       <div class="acct-foot">
         <span>다음 발행 · <b>${esc(a.next)}</b></span>
-        <span>${connected?'토큰 정상':'GitHub Secrets 등록 필요'}</span>
+        <span>${tokenExpHtml(a, connected)}</span>
       </div>
     </div>`;
   }).join('');
@@ -1565,6 +1767,7 @@ function renderAccounts(){
   }
   const navAcct = $('#navAcctCount');
   if(navAcct) navAcct.textContent = connected;
+  renderPrevAcctSel();
   renderStats();
 }
 function setAcct(i, key, val){
@@ -1572,10 +1775,53 @@ function setAcct(i, key, val){
   if(key==='variant') toast('영상 변형 방식을 바꿨어요');
   if(API.configured()){
     const a = state.accounts[i];
-    const fields = {goal:a.goal, variant:a.variant, start:a.from, end:a.to, name:a.name};
+    const fields = {goal:a.goal, variant:a.variant, start:a.from, end:a.to, name:a.name, personas:(a.personas||[]).join(',')};
     API.call('saveAccount', {no:a.no || a.id || i+1, fields})
       .catch(err=>toast('시트 저장 실패: ' + err.message));
   }
+}
+
+/* ---------- 계정별 페르소나 (랜덤 로테이션) ---------- */
+/* 페르소나 풀 = STYLES 중 '랜덤'을 뺀 실제 스타일 6개 */
+function personaStyles(){ return STYLES.filter(s=>s.id!=='랜덤'); }
+function personaHintText(a){
+  const n = (Array.isArray(a.personas) ? a.personas : []).length;
+  return n ? `${n}개 중 발행마다 랜덤` : '미지정 · 기본값 사용';
+}
+function togglePersona(i, styleId, el){
+  const a = state.accounts[i]; if(!a) return;
+  if(!Array.isArray(a.personas)) a.personas = [];
+  const on = a.personas.includes(styleId);
+  a.personas = on ? a.personas.filter(x=>x!==styleId) : [...a.personas, styleId];
+  save();
+  if(el) el.classList.toggle('on', !on);
+  const hint = document.getElementById('personaHint'+i);
+  if(hint) hint.textContent = personaHintText(a);
+  toast(!on ? '페르소나를 걸었어요 · 발행 때마다 랜덤으로 골라요' : '페르소나를 뺐어요');
+  if(API.configured()){
+    const fields = {goal:a.goal, variant:a.variant, start:a.from, end:a.to, name:a.name, personas:(a.personas||[]).join(',')};
+    API.call('saveAccount', {no:a.no || a.id || i+1, fields})
+      .catch(err=>toast('시트 저장 실패: ' + err.message));
+  }
+}
+
+/* ---------- 토큰 만료 표시 ---------- */
+function daysUntil(ymd){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(ymd||'').trim());
+  if(!m) return null;
+  const t = new Date(isoToday() + 'T00:00:00');
+  const e = new Date(`${m[1]}-${m[2]}-${m[3]}T00:00:00`);
+  if(isNaN(e.getTime())) return null;
+  return Math.round((e - t) / 86400000);
+}
+function tokenExpHtml(a, connected){
+  if(!connected) return 'GitHub Secrets 등록 필요';
+  if(!a.tokenExp) return '토큰 정상';
+  const days = daysUntil(a.tokenExp);
+  if(days === null) return '토큰 만료 ' + esc(a.tokenExp);
+  if(days < 0) return `토큰 만료 ${esc(a.tokenExp)} <span class="status-badge fail">만료됨</span>`;
+  if(days <= 7) return `토큰 만료 ${esc(a.tokenExp)} <span class="status-badge fail">D-${days} 임박</span>`;
+  return `토큰 만료 ${esc(a.tokenExp)}`;
 }
 
 /* ---------- 상단·사이드바 통계 (실제 계정/로그 기준) ---------- */
@@ -1647,6 +1893,174 @@ function renderStats(){
   if(row) row.innerHTML = `<span class="dot"></span>${accts.length ? '발행 엔진 정상' : '발행 엔진 대기 · 연결된 계정 없음'}`;
 }
 
+/* ---------- 발행 대기 (예정 · 관리) ---------- */
+/* 큐 항목 = 담긴 추천 + 활성 상품(담긴 추천과 이름이 겹치는 상품은 추천 쪽으로만 한 번) */
+function queueItems(){
+  const taken = state.recommendations.filter(r=>r.status==='taken');
+  const takenNames = new Set(taken.map(r=>r.product));
+  const items = [];
+  taken.forEach(r=>items.push({key:'rec:'+r.id, kind:'추천 담기', rec:true, recId:r.id, name:r.product}));
+  state.products.filter(p=>p.active && !takenNames.has(p.name))
+    .forEach(p=>items.push({key:'prod:'+p.id, kind:'상품 풀', rec:false, prodId:p.id, name:p.name}));
+  /* state.queue(키 배열)로 순서 유지 — 새 항목은 뒤에 붙이고, 사라진 항목은 버린다 */
+  const byKey = {};
+  items.forEach(it=>{ byKey[it.key] = it; });
+  const ordered = [];
+  (Array.isArray(state.queue) ? state.queue : []).forEach(k=>{
+    if(byKey[k]){ ordered.push(byKey[k]); delete byKey[k]; }
+  });
+  items.forEach(it=>{ if(byKey[it.key]) ordered.push(it); });
+  state.queue = ordered.map(it=>it.key);
+  return ordered;
+}
+/* 계정 활동 시간 안에서 20분 슬롯 기준 idx번째 발행 시각 */
+function slotAt(a, idx){
+  const from = minutesOf(a.from), to = minutesOf(a.to);
+  if(from === null || to === null) return null;
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  let day = 0, min;
+  if(nowMin < from){ min = from; }
+  else if(nowMin <= to){
+    min = Math.ceil((nowMin + 1)/20)*20;
+    if(min > to){ min = from; day = 1; }
+  } else { min = from; day = 1; }
+  for(let s = 0; s < idx; s++){
+    min += 20;
+    if(min > to){ day++; min = from; }
+  }
+  return {day, min};
+}
+function slotLabel(slot){
+  if(!slot) return '-';
+  const d = slot.day === 0 ? '오늘' : slot.day === 1 ? '내일' : `${slot.day}일 뒤`;
+  return `${d} ${fmtHHMM(slot.min)}`;
+}
+function renderQueue(){
+  const list = $('#queueList'); if(!list) return;
+  const items = queueItems();
+  save();
+  const accts = connectedAccounts();
+  const perAcct = {};
+  list.innerHTML = items.map((it, i)=>{
+    const acct = accts.length ? accts[i % accts.length] : null;
+    let when = '-', acctName = '연결된 계정 없음';
+    if(acct){
+      const step = perAcct[acct.id] || 0;
+      perAcct[acct.id] = step + 1;
+      when = slotLabel(slotAt(acct, step));
+      acctName = acct.name;
+    }
+    return `
+    <div class="queue-row">
+      <div class="queue-no">${i + 1}</div>
+      <div class="queue-main">
+        <div class="queue-name">${esc(it.name)}</div>
+        <div class="queue-meta"><span class="kind-chip ${it.rec ? 'rec' : ''}">${it.kind}</span><span>${esc(acctName)} 계정으로 발행</span></div>
+      </div>
+      <div class="queue-when">${esc(when)}<small>발행 예정</small></div>
+      <div class="queue-btns">
+        <button class="icon-btn" title="위로" ${i === 0 ? 'disabled style="opacity:.35"' : ''} onclick="moveQueueItem('${it.key}',-1)"><svg><use href="#i-up"/></svg></button>
+        <button class="icon-btn" title="아래로" ${i === items.length - 1 ? 'disabled style="opacity:.35"' : ''} onclick="moveQueueItem('${it.key}',1)"><svg><use href="#i-down"/></svg></button>
+        <button class="btn sm ghost" onclick="cancelQueueItem('${it.key}')">취소</button>
+      </div>
+    </div>`;
+  }).join('') || `<div class="empty-note" style="border:1px dashed var(--line);border-radius:16px;padding:26px;text-align:center;color:var(--dim);font-size:13px">발행 대기 중인 항목이 없어요. 추천을 담거나 상품을 활성화하면 여기에 쌓여요.</div>`;
+  const chip = $('#queueCountChip'); if(chip) chip.textContent = items.length;
+  const nav = $('#navQueueCount'); if(nav) nav.textContent = items.length;
+}
+function moveQueueItem(key, dir){
+  const q = Array.isArray(state.queue) ? state.queue : [];
+  const i = q.indexOf(key);
+  const j = i + dir;
+  if(i < 0 || j < 0 || j >= q.length) return;
+  [q[i], q[j]] = [q[j], q[i]];
+  state.queue = q; save(); renderQueue();
+}
+async function cancelQueueItem(key){
+  if(key.indexOf('rec:') === 0){
+    const r = state.recommendations.find(x=>'rec:' + x.id === key);
+    if(!r) return;
+    if(API.configured() && API.token){
+      /* 백엔드에 담기 해제 액션이 있으면 같이 알린다. 없어도 로컬 해제는 진행한다. */
+      try { await API.call('untakeRecommendation', {date: isoToday(), rank: r.rank || 0}); } catch(e){ /* 무시 */ }
+    }
+    r.status = 'wait';
+    save(); renderRec(); renderPool(); renderQueue();
+    toast('담기를 해제했어요 · 추천 대기로 돌아갔어요');
+  } else {
+    const p = state.products.find(x=>'prod:' + x.id === key);
+    if(!p) return;
+    p.active = false;
+    save(); renderPool(); renderQueue();
+    toast('상품을 중지했어요 · 상품 풀에서 다시 켤 수 있어요');
+    if(API.configured()){
+      API.call('toggleProduct', {id: p.id, active: false}).catch(()=>{});
+    }
+  }
+}
+
+/* ---------- 실적 ---------- */
+function fmtWon(n){ return Number(n || 0).toLocaleString('ko-KR') + '원'; }
+function convOf(clicks, orders){
+  const c = Number(clicks || 0);
+  return c > 0 ? (Number(orders || 0) / c * 100) : 0;
+}
+function renderPerf(){
+  const perf = state.performance || {byAccount: [], byProduct: []};
+  const byA = Array.isArray(perf.byAccount) ? perf.byAccount : [];
+  const byP = (Array.isArray(perf.byProduct) ? [...perf.byProduct] : []).sort((x, y)=>(y.clicks || 0) - (x.clicks || 0));
+  const tClicks = byA.reduce((s, a)=>s + (Number(a.clicks) || 0), 0);
+  const tOrders = byA.reduce((s, a)=>s + (Number(a.orders) || 0), 0);
+  const tRevenue = byA.reduce((s, a)=>s + (Number(a.revenue) || 0), 0);
+  const cEl = $('#perfClicks'); if(cEl) cEl.innerHTML = tClicks.toLocaleString('ko-KR') + '<small>회</small>';
+  const oEl = $('#perfOrders'); if(oEl) oEl.innerHTML = tOrders.toLocaleString('ko-KR') + '<small>건</small>';
+  const rEl = $('#perfRevenue'); if(rEl) rEl.innerHTML = tRevenue.toLocaleString('ko-KR') + '<small>원</small>';
+  const vEl = $('#perfConv'); if(vEl) vEl.innerHTML = convOf(tClicks, tOrders).toFixed(1) + '<small>%</small>';
+  const aList = $('#perfAcctList');
+  if(aList){
+    aList.innerHTML = byA.map(a=>`
+    <div class="ptable-row a">
+      <div><div class="pt-name">${esc(a.name)}</div><div class="pt-sub">${esc(a.handle || '')}</div></div>
+      <div class="pt-num pt-click">${Number(a.clicks || 0).toLocaleString('ko-KR')}</div>
+      <div class="pt-num">${Number(a.orders || 0).toLocaleString('ko-KR')}</div>
+      <div class="pt-num">${convOf(a.clicks, a.orders).toFixed(1)}%</div>
+      <div class="pt-num">${fmtWon(a.revenue)}</div>
+    </div>`).join('') || `<div style="padding:26px;text-align:center;color:#5d6579;font-size:12.5px">아직 실적 데이터가 없어요.</div>`;
+  }
+  const pList = $('#perfProdList');
+  if(pList){
+    pList.innerHTML = byP.map(p=>`
+    <div class="ptable-row p">
+      <div class="pt-name">${esc(p.name)}</div>
+      <div class="pt-num pt-click">${Number(p.clicks || 0).toLocaleString('ko-KR')}</div>
+      <div class="pt-num">${Number(p.orders || 0).toLocaleString('ko-KR')}</div>
+      <div class="pt-num">${convOf(p.clicks, p.orders).toFixed(1)}%</div>
+      <div class="pt-num">${fmtWon(p.revenue)}</div>
+    </div>`).join('') || `<div style="padding:26px;text-align:center;color:#5d6579;font-size:12.5px">아직 실적 데이터가 없어요.</div>`;
+  }
+  const note = $('#perfNote');
+  if(note){
+    if(state.perfLive){ note.className = 'pill live'; note.innerHTML = '<svg><use href="#i-shield"/></svg>실시간 연결'; }
+    else { note.className = 'pill hot'; note.innerHTML = '<svg><use href="#i-spark"/></svg>데모 데이터'; }
+  }
+}
+/* 백엔드가 getPerformance 를 지원하면 실제 실적을 불러오고, 아니면 조용히 시드(데모)를 유지한다 */
+async function loadPerformance(){
+  if(!API.configured() || !API.token) return;
+  try{
+    const data = await API.call('getPerformance', {days: 7});
+    if(data && (Array.isArray(data.byAccount) || Array.isArray(data.byProduct))){
+      state.performance = {
+        byAccount: (data.byAccount || []).map(a=>({name: a.name || '', handle: a.handle || '', clicks: Number(a.clicks || 0), orders: Number(a.orders || 0), revenue: Number(a.revenue || 0)})),
+        byProduct: (data.byProduct || []).map(p=>({name: p.name || '', clicks: Number(p.clicks || 0), orders: Number(p.orders || 0), revenue: Number(p.revenue || 0)}))
+      };
+      state.perfLive = true;
+      save(); renderPerf();
+    }
+  }catch(e){ /* 조용히 데모 데이터로 폴백 */ }
+}
+
 /* ---------- styles / preview ---------- */
 function renderStyles(){
   $('#styleList').innerHTML = STYLES.map(s=>`
@@ -1672,7 +2086,7 @@ function pickProduct(){
   return p || {product:'열수축포장 비닐팩 대형 20매', price:12900};
 }
 /* 미리보기 — 실제 발행 엔진(bot/copywriter.py)과 같은 규칙·같은 문장 패턴.
-   첫 줄에 '무슨 상품인지 + 어떤 불편이었는지'가 같이 보이고, 본문이 어떻게 해결되는지 말한다.
+   첫 줄은 리액션형·선언형·품목+불편형 중 하나이고, 첫 세 줄 안에 품목·불편·해결이 다 보인다.
    억지 단문·음슴체('샀다. 잘 쓴다.'), 문어체, 링크·댓글 유도 멘트는 쓰지 않는다. */
 const NL = String.fromCharCode(10);
 
@@ -1680,92 +2094,100 @@ const NL = String.fromCharCode(10);
    상품에 없는 기능은 넣지 않는다. */
 const CORE_ANGLES = [
   {keys:['방충망','창틀','창문'], need:['밀대'], item:'방충망 밀대',
-   pain:'방충망 떼서 씻고 다시 끼우던 일', move:'안 떼고 서서 쓱 밀면 먼지가 다 붙어 나와요'},
+   pain:'방충망 떼서 씻고 다시 끼우던 일', move:'안 떼고 서서 쓱 미니까 먼지가 다 붙어 나옴'},
   {keys:['창틀','창문'], need:['브러시','브러쉬','틈새'], item:'창틀 틈새 브러시',
-   pain:'창틀 골진 사이 끼어 있던 먼지', move:'브러시 끝으로 긁으면 틈에 낀 먼지가 같이 나와요'},
+   pain:'창틀 골진 사이 끼어 있던 먼지', move:'브러시 끝으로 긁으니까 틈에 낀 먼지가 같이 딸려 나옴'},
   {keys:['만능','페이스트'], need:['크리너','클리너','세정'], item:'만능 크리너',
-   pain:'찌든 때 문질러도 안 지워지던 일', move:'수세미에 묻혀 한 번 문지르면 지워져요'},
+   pain:'찌든 때 문질러도 안 지워지던 일', move:'수세미에 묻혀서 한 번 문지르니까 그냥 지워지더라'},
   {keys:['곰팡이','줄눈'], need:[], item:'실리콘 곰팡이 젤',
-   pain:'욕실 줄눈 곰팡이 문지르던 일', move:'바르고 자면 다음 날 물만 부으면 지워져요'},
+   pain:'욕실 줄눈 곰팡이 문지르던 일', move:'바르고 자면 다음 날 물만 부어도 지워져 있음'},
   {keys:['후드'], need:['기름때','클리너','필터','세정'], item:'후드 기름때 클리너',
-   pain:'후드 필터 삶아서 닦던 일', move:'뿌려서 15분 두면 기름이 흘러내려요'},
+   pain:'후드 필터 삶아서 닦던 일', move:'뿌리고 15분 두니까 기름이 줄줄 흘러내리더라'},
   {keys:['트레이','정리함','수납함'], need:[], item:'수납 트레이',
-   pain:'싱크대 아래 세제 찾던 일', move:'높이 맞춰 올려두니까 한눈에 보여요'},
+   pain:'싱크대 아래 세제 찾던 일', move:'높이 맞춰 올려두니까 한눈에 다 보이네'},
   {keys:['신발'], need:['제습','탈취','냄새'], item:'신발장 제습 팩',
-   pain:'신발장 문 열면 올라오던 냄새', move:'넣어두면 냄새가 조용해져요'},
+   pain:'신발장 문 열면 올라오던 냄새', move:'넣어두니까 냄새가 싹 가라앉음'},
   {keys:['제습','탈취','냄새'], need:[], item:'제습 팩',
-   pain:'장 문 열면 올라오던 냄새', move:'넣어두면 냄새가 조용해져요'},
+   pain:'장 문 열면 올라오던 냄새', move:'넣어두니까 냄새가 싹 가라앉음'},
   {keys:['수축','비닐팩','포장비닐'], need:[], item:'수축포장 비닐',
-   pain:'신발장 먼지 보고 짜증나던 일', move:'감싸서 드라이기 쐈더니 그대로예요'},
+   pain:'신발장 먼지 보고 짜증나던 일', move:'감싸서 드라이기 쐈더니 그 모양 그대로 굳어 있더라'},
   {keys:['김'], need:['보관','용기','김통'], item:'김 보관 용기',
-   pain:'김 사두면 눅눅해지던 일', move:'냉동해뒀다 전자레인지에 20초 돌리면 바삭해져요'},
+   pain:'김 사두면 눅눅해지던 일', move:'냉동해뒀다 전자레인지에 20초 돌리니까 다시 바삭해지네'},
   {keys:['핸디','청소기'], need:['핸디','무선','휴대','미니'], item:'핸디 청소기',
-   pain:'구석 먼지에 청소기 꺼내기 귀찮던 일', move:'한 손으로 켜서 그 자리에서 빨아들이면 끝이에요'},
+   pain:'구석 먼지에 청소기 꺼내기 귀찮던 일', move:'한 손으로 켜서 그 자리에서 빨아들이면 바로 끝남'},
   {keys:['텀블러','패킹','반찬통'], need:[], item:'틈새 세척 솔',
-   pain:'텀블러 뚜껑 패킹 닦던 일', move:'솔이 틈에 들어가서 안쪽까지 닦여요'},
+   pain:'텀블러 뚜껑 패킹 닦던 일', move:'솔이 틈새로 쏙 들어가서 안쪽까지 닦이더라'},
   {keys:['세척'], need:['틈새','브러시','브러쉬'], item:'틈새 세척 솔',
-   pain:'텀블러 뚜껑 패킹 닦던 일', move:'솔이 틈에 들어가서 안쪽까지 닦여요'},
+   pain:'텀블러 뚜껑 패킹 닦던 일', move:'솔이 틈새로 쏙 들어가서 안쪽까지 닦이더라'},
   {keys:['세척솔','물통솔','빨대솔','솔세트','물통'], need:[], item:'물통 세척 솔',
-   pain:'물통 입구에 손 안 들어가던 일', move:'솔 넣고 돌리면 바닥까지 닿아요'},
+   pain:'물통 입구에 손 안 들어가던 일', move:'솔 넣고 돌리니까 바닥까지 싹 닦임'},
   {keys:['문풍지','문틈','현관'], need:[], item:'문틈새 브러시',
-   pain:'현관문 밑으로 먼지 들어오던 거', move:'붙여두니까 그 틈이 막혀요'},
+   pain:'현관문 밑으로 먼지 들어오던 거', move:'붙여두니까 그 틈이 딱 막혀서 먼지가 안 들어옴'},
   {keys:['이유식'], need:['용기','보관'], item:'이유식 용기',
-   pain:'남은 이유식 냉장고 자리 차지하던 일', move:'접혀서 납작해지니까 자리를 거의 안 차지해요'},
+   pain:'남은 이유식 냉장고 자리 차지하던 일', move:'접으면 납작해져서 자리를 거의 안 차지하네'},
   {keys:['도시락'], need:['보온','전기'], item:'보온 도시락통',
-   pain:'점심때 식은 밥 먹던 일', move:'전원 꽂아두면 따뜻하게 유지돼요'},
+   pain:'점심때 식은 밥 먹던 일', move:'전원 꽂아두면 점심때까지 따뜻하게 유지됨'},
   {keys:['과일'], need:['건조대','바구니','정리'], item:'과일 건조대',
-   pain:'과일 씻어서 식탁에 쌓아두던 일', move:'돌려서 꺼내면 아래 칸 과일도 한 번에 보여요'},
+   pain:'과일 씻어서 식탁에 쌓아두던 일', move:'돌려서 꺼내니까 아래 칸 과일도 한 번에 보이네'},
   {keys:['받침대','받침'], need:['조리도구','국자','수저','주걱'], item:'실리콘 받침대',
-   pain:'국자 놓을 데 없어 조리대에 흘리던 일', move:'받침대에 올려두면 조리대가 안 더러워져요'},
+   pain:'국자 놓을 데 없어 조리대에 흘리던 일', move:'받침대에 올려두니까 조리대가 안 더러워짐'},
   {keys:['착즙','즙짜'], need:[], item:'착즙기',
-   pain:'레몬 짜다 씨 들어가고 손 끈적이던 일', move:'꽂아서 누르면 즙만 아래로 받아져요'},
+   pain:'레몬 짜다 씨 들어가고 손 끈적이던 일', move:'꽂아서 누르니까 즙만 아래로 받아지더라'},
   {keys:['얼음틀','얼음트레이'], need:[], item:'원터치 얼음틀',
-   pain:'얼음 빼다 손 시리고 틀 부러지던 일', move:'눌러서 톡 떨어뜨리면 끝이에요'},
+   pain:'얼음 빼다 손 시리고 틀 부러지던 일', move:'눌러서 톡 떨어뜨리면 바로 끝남'},
   {keys:['받이망','빨래받이'], need:[], item:'빨래 받이망',
-   pain:'빨래 꺼낼 때 양말이 바닥에 떨어지던 일', move:'걸어두면 밑으로 다 받아져요'},
+   pain:'빨래 꺼낼 때 양말이 바닥에 떨어지던 일', move:'걸어두니까 떨어지는 빨래를 밑에서 다 받아줌'},
 ];
 
 /* 스타일별 문장 패턴 — {item} {pain} {pain_i} {pain_eun} {move} 치환. 발행 엔진과 같은 문장. */
 const CORE_TEMPLATES = {
   '찐후기':[
-    ['{item}, 살까 말까 하다가 그냥 샀어요','','{pain_i} 제일 싫었는데 이제 안 해요','{move}','','왜 이제 알았지 싶어요'],
-    ['별 기대 없이 산 {item}인데','','{pain}, 이제 안 해요','{move}','','진작 살 걸 그랬어요'],
-    ['{item} 샀어요','','{pain_eun} 이제 안 해요','{move}','','값보다 편해진 게 커요']
+    ['아니 {item} 저렇게 쓰는 거였어? ㄷㄷ','','{pain_i} 제일 싫었는데 이제 안 함','{move}','','진작 살 걸 시간 다 버렸음 ㅠ'],
+    ['별 기대 없이 산 {item}인데','','{pain}, 이제 안 함','{move}','','진작 살 걸 그랬네'],
+    ['{item} 결국 샀는데 이거 뭐야','','{pain_eun} 이제 안 함','{move}','','값보다 편해진 게 크더라'],
+    ['와씨;; {pain_eun} 나만 그런 줄 알았네','','{item} 하나로 끝냈음','{move}','','진작 알았으면 시간 아꼈네'],
+    ['아니 {item} 이거 왜 이제 알았지 ㅋㅋㅋ','','{pain_i} 제일 싫었는데 이제 안 함','{move}','','나만 몰랐던 거였네;;']
   ],
   '살림고수':[
-    ['{pain_i} 통째로 사라졌어요','','{item} 하나 두고 나서부터거든요','{move}','','집안일 하나 줄어든 게 제일 커요'],
-    ['{item} 하나 들이고 나서 순서가 하나 줄었어요','','{pain_eun} 안 하게 됐거든요','{move}','','도구 하나 바꾼 게 제일 빨랐어요'],
-    ['{item} 들인 뒤로 하루가 조금 짧아졌어요','','{pain_i} 사라져서요','{move}','','값보다 빠진 일이 커요']
+    ['{pain_i} 통째로 사라졌음','','{item} 하나 두고 나서부터거든','{move}','','집안일 하나 줄어든 게 제일 크더라'],
+    ['{item} 하나 들이고 나서 순서가 하나 줄었음','','{pain_eun} 안 하게 됐거든','{move}','','도구 하나 바꾼 게 제일 빨랐네'],
+    ['{item} 들인 뒤로 하루가 조금 짧아졌네','','{pain_i} 사라져서 그런가 봄','{move}','','값보다 빠진 일이 크더라'],
+    ['몇만 원씩 쓰지 마. {item} 하나면 끝나더라','','{pain_i} 제일 싫었는데 이제 안 함','{move}','','집안일 하나 줄어든 게 제일 크더라']
   ],
   '육아공감':[
-    ['애들 자고 나서 {item} 써봤어요','','{pain}, 그거 이제 안 해요','{move}','','내가 편해진 게 제일 좋아요'],
-    ['아이들 다 나가고 {item} 써봤는데','','{pain_i} 그게 제일 번거로웠거든요','{move}','','내가 덜 지치는 쪽이 좋아요']
+    ['애들 자고 나서 {item} 써봤는데 이거 뭐야','','{pain}, 그거 이제 안 함','{move}','','내가 편해진 게 제일 좋더라'],
+    ['아이들 다 나가고 {item} 써봤는데','','{pain_i} 제일 번거로웠거든','{move}','','내가 덜 지치는 쪽이 낫더라'],
+    ['{pain} 때문에 힘든 집 있지? 나도 그랬음 ㅠ','','{item} 쓰고부터는 그 일 안 함','{move}','','내가 편해진 게 제일 좋더라']
   ],
   '질문유도':[
-    ['{item}, 이거 쓰는 집 나 말고 또 있죠?','','나는 {pain_eun} 이거 하나로 끝냈어요','{move}','','너네 집은 어떻게 해요?'],
-    ['{pain}, 아직도 그렇게 하는 집 있나요?','','나는 {item} 쓰고부터 안 해요','{move}','','다른 집은 어떤지 궁금해요'],
-    ['이런 거 살 때 뭐 보고 골라요? 나는 {item}으로 정했어요','','{pain_eun} 그거 하나로 끝났어요','{move}','','다른 거 쓰는 집 있으면 알려줘요']
+    ['{item}, 이거 쓰는 집 나 말고 또 있지?','','나는 {pain_eul} 이거 하나로 끝냈음','{move}','','너네 집은 어떻게 함?'],
+    ['{pain}, 아직도 그렇게 하는 집 있어?','','나는 {item} 쓰고부터 안 함','{move}','','다른 집은 어떤지 궁금하네'],
+    ['이런 거 살 때 뭐 보고 고름?','','나는 {item} 하나로 {pain_eul} 끝냈음','{move}','','다른 거 쓰는 집 있으면 알려줘'],
+    ['{pain} 이거 다들 어떻게 버티고 있었어? ㄷㄷ','','나는 {item} 하나로 끝냈음','{move}','','너네 집은 어떻게 함?']
   ],
   '시크':[
-    ['{item}. 딴 거 다 써봤는데 결국 이걸로 정착했어요','','{pain}, 이제 안 해요. {move}','','값보다 편한 게 커요'],
-    ['{item} 샀어요','','{pain_eun} 끝났어요. {move}','','그 정도면 충분해요'],
-    ['{item} 하나 들였어요','','{pain_i} 없어졌어요. {move}','','다른 건 안 바꿔요']
+    ['{item}, 딴 거 다 써보고 결국 이걸로 정착함','','{pain}, 이제 안 함. {move}','','값보다 편한 게 크더라'],
+    ['{item} 결국 샀음','','{pain_eun} 이걸로 끝났음. {move}','','이 정도면 충분하네'],
+    ['{item} 하나 들였음','','{pain_i} 없어졌음. {move}','','다른 건 안 건드림'],
+    ['{pain_eun} 오늘로 끝임','','{item} 하나로 끝냈음. {move}','','값보다 편한 게 크더라']
   ],
   '비교반전':[
-    ['비싼 거 사지 마세요. {item} 하나면 돼요','','{pain}, 이제 안 해요','{move}','','그 돈 아낀 게 제일 만족스러워요'],
-    ['{item} 하나로 정리했어요','','{pain_eun} 안 하니까요','여러 개 써봤는데 결국 이게 제일 편했어요','{move}','','비싼 게 답은 아니었어요'],
-    ['원래 쓰던 거 다 치웠어요. {item} 쓰고 나서','','{pain_i} 제일 번거로웠거든요','{move}','','다음에도 이거 살 거예요']
+    ['비싼 거 그만 사. {item} 하나면 됨','','{pain}, 이제 안 함','{move}','','그 돈 아낀 게 제일 만족스럽더라'],
+    ['{item} 하나로 정리했음','','{pain_eun} 안 하니까 속이 다 시원함','여러 개 써봤는데 결국 이게 제일 편했음','{move}','','비싼 게 답은 아니더라'],
+    ['원래 쓰던 거 다 치웠음. {item} 쓰고 나서','','{pain_i} 제일 번거로웠거든','{move}','','다음에도 이거 살 거임'],
+    ['비싼 거 알아보기 전에 {item}부터 써봐','','순서가 반대였음','{pain_i} 제일 번거로웠거든','{move}','','그 돈 아낀 게 제일 만족스럽더라'],
+    ['{pain_eul} 없애려고 비싼 돈 쓰지 마','','{item} 하나면 됨','{move}','','그 돈 아낀 게 제일 만족스럽더라']
   ]
 };
 
 /* 품목을 알아보지 못한 상품(상품명만 있음) — 없는 기능은 말하지 않는다. */
 const PLAIN_TEMPLATES = {
-  '찐후기':[['{item} 샀어요','','찾고 있던 거라 이것저것 안 보고 그냥 질렀는데','받아보니 딱 그 용도예요','','오래 쓰면 좋겠어요']],
-  '살림고수':[['{item} 하나 들였어요','','찾던 품목이라 여기저기 비교하지 않고 바로 정했어요','지금은 자리 잡고 잘 쓰고 있어요','','값보다 오래 쓰는 게 중요하죠']],
-  '육아공감':[['{item} 샀어요','','아이 물건 챙기다 보면 이런 게 하나씩 필요하더라고요','찾던 거라 받아보니 딱 그 용도예요','','내가 편해진 게 제일 좋아요']],
-  '질문유도':[['{item}, 이런 거 고를 때 뭐 보고 고르세요?','','나는 찾던 품목이라 그냥 이걸로 정했어요','받아보니 딱 그 용도예요','','너네 집은 뭐 쓰세요?']],
-  '시크':[['{item}. 필요한 게 이거라 그냥 이걸로 정했어요','','받아보니 딱 그 용도예요','','오래 쓰면 좋겠어요']],
-  '비교반전':[['{item} 사려고 여기저기 볼 필요 없어요','','찾던 품목이면 이걸로 정리되는데 받아보니 딱 그 용도예요','','이 정도면 산 값은 해요']]
+  '찐후기':[['{item} 결국 샀는데','','찾고 있던 거라 이것저것 안 보고 그냥 질렀음','받아보니까 딱 그 용도더라','','오래 쓰면 좋겠네'],['아니 {item} 이거 왜 이제 알았지 ㅋㅋㅋ','','찾고 있던 거라 이것저것 안 보고 그냥 질렀음','받아보니까 딱 그 용도더라','','오래 쓰면 좋겠네']],
+  '살림고수':[['{item} 하나 들였음','','찾던 품목이라 여기저기 비교 안 하고 바로 정했음','지금은 자리 잡고 잘 쓰고 있음','','값보다 오래 쓰는 게 중요하잖아']],
+  '육아공감':[['{item} 결국 샀음','','아이 물건 챙기다 보면 이런 게 하나씩 필요하더라','찾던 거라 받아보니까 딱 그 용도임','','내가 편해진 게 제일 좋더라']],
+  '질문유도':[['{item}, 이런 거 고를 때 뭐 보고 고름?','','나는 찾던 품목이라 그냥 이걸로 정했음','받아보니까 딱 그 용도더라','','너네 집은 뭐 씀?']],
+  '시크':[['{item}, 필요한 게 이거라 그냥 이걸로 정했음','','받아보니까 딱 그 용도더라','','오래 쓰면 좋겠네']],
+  '비교반전':[['{item} 사려고 여기저기 볼 필요 없더라','','찾던 품목이면 이걸로 정리되는데 받아보니까 딱 그 용도임','','이 정도면 산 값은 하네']]
 };
 
 const NAME_NOISE = ['다용도','업소용','가정용','대형','소형','미니','휴대용','접이식','높이조절','무선','국산','정품','세트','특대','고급','프리미엄','리필','기획'];
@@ -1822,15 +2244,39 @@ function buildPreviewLines(style, productName){
   };
   return pattern.map(line => line.replace(/\{(pain_i|pain_eun|pain_eul|item|pain|move)\}/g, (m, k) => slots[k]));
 }
+/* ---------- 미리보기 계정 · 페르소나 랜덤 ---------- */
+let previewAcctIdx = 0;
+function renderPrevAcctSel(){
+  const sel = $('#prevAcctSel'); if(!sel) return;
+  if(previewAcctIdx >= state.accounts.length) previewAcctIdx = 0;
+  sel.innerHTML = state.accounts.map((a,i)=>`<option value="${i}" ${i===previewAcctIdx?'selected':''}>${esc(a.name)} (${esc(a.handle)})</option>`).join('');
+}
+function setPreviewAcct(v){ previewAcctIdx = Number(v) || 0; buildPreview(true); }
+/* 발행 엔진과 같은 규칙: 계정 페르소나가 있으면 그중 랜덤, 없으면 전역 기본값('랜덤'이면 전체에서 랜덤).
+   문장 생성은 아래 buildPreviewLines 가 베이스의 CORE_TEMPLATES(새 말투)로 한다. */
+function pickPersonaForPreview(a){
+  const pool = (a && Array.isArray(a.personas)) ? a.personas.filter(id=>CORE_TEMPLATES[id]) : [];
+  if(pool.length) return pool[Math.floor(Math.random()*pool.length)];
+  if(state.style==='랜덤'){
+    const keys = Object.keys(CORE_TEMPLATES);
+    return keys[Math.floor(Math.random()*keys.length)];
+  }
+  return CORE_TEMPLATES[state.style] ? state.style : '찐후기';
+}
 function buildPreview(force){
   if(force) previewTick++;
   const p = pickProduct();
-  const styleKeys = Object.keys(CORE_TEMPLATES);
-  const stylePool = state.style==='랜덤' ? styleKeys[Math.floor(Math.random()*styleKeys.length)] : state.style;
+  const acct = state.accounts[previewAcctIdx] || state.accounts.find(a=>a.status==='connected') || state.accounts[0];
+  const stylePool = pickPersonaForPreview(acct);
   const lines = buildPreviewLines(stylePool, p.product || p.name || '');
   const hook = lines[0];
   const rest = lines.slice(1);
-  const acct = state.accounts.find(a=>a.status==='connected') || state.accounts[0];
+  const badge = $('#prevPersonaBadge');
+  if(badge){
+    const s = STYLES.find(x=>x.id===stylePool);
+    const fromAcct = (acct && Array.isArray(acct.personas) && acct.personas.filter(id=>CORE_TEMPLATES[id]).length) ? '계정 페르소나' : '기본값';
+    badge.textContent = `페르소나 · ${s ? s.name : stylePool} (${fromAcct})`;
+  }
 
   $('#prevAvatar').textContent = acct.name[0] || '원';
   $('#prevUser').innerHTML = `${esc(acct.name)} <span class="badge">✓</span> <span class="thread-time">방금</span>`;
@@ -1852,21 +2298,32 @@ function buildPreview(force){
 
 /* ---------- logs / settings ---------- */
 let logRange = 'today';
+let logFilter = 'all';
 function setLogRange(r){
   logRange = r;
   $$('#logRangeSeg button').forEach(b=>b.classList.toggle('on', b.dataset.r===r));
   renderLogs();
 }
+function setLogFilter(f){
+  logFilter = f;
+  $$('#logResultSeg button').forEach(b=>b.classList.toggle('on', b.dataset.f===f));
+  renderLogs();
+}
 function logRows(){
-  const list = state.logs || [];
-  if(logRange==='all') return list;
-  const today = isoToday();
-  const from = (function(){ const d = new Date(); d.setDate(d.getDate()-6); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; })();
-  return list.filter(l=>{
-    /* 날짜가 없는 예전 값('22:41' 만 있는 경우)은 오늘로 본다. */
-    const k = dateKey(l.ts || l.time) || today;
-    return logRange==='today' ? k === today : k >= from;
-  });
+  /* _idx 는 state.logs 원본 위치 — 재시도 버튼이 정확한 행을 가리키게 한다 */
+  let rows = (state.logs || []).map((l, idx)=>({...l, _idx: idx}));
+  if(logRange !== 'all'){
+    const today = isoToday();
+    const from = (function(){ const d = new Date(); d.setDate(d.getDate()-6); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; })();
+    rows = rows.filter(l=>{
+      /* 날짜가 없는 예전 값('22:41' 만 있는 경우)은 오늘로 본다. */
+      const k = dateKey(l.ts || l.time) || today;
+      return logRange==='today' ? k === today : k >= from;
+    });
+  }
+  if(logFilter === 'ok') rows = rows.filter(l=>l.ok);
+  if(logFilter === 'fail') rows = rows.filter(l=>!l.ok);
+  return rows;
 }
 function renderLogs(){
   const rows = logRows();
@@ -1889,9 +2346,31 @@ function renderLogs(){
             ? `<a class="log-link" href="${esc(href)}" target="_blank" rel="noopener">글 보기 <svg width="10" height="10"><use href="#i-ext"/></svg></a>`
             : '<span style="font-size:10.5px;color:#5d6579">링크 없음</span>')
         : `<span class="log-err" title="${esc(cleanText(raw))}">${esc(brief || '실패')}</span>`}</div>
-      <div><span class="status-badge ${ok?'ok':'fail'}">${ok?'성공':'실패'}</span></div>
+      <div class="log-result"><span class="status-badge ${ok?'ok':'fail'}">${ok?'성공':'실패'}</span>${!ok
+        ? (l.retry
+            ? '<span class="status-badge wait">재시도 요청됨</span>'
+            : `<button class="btn sm ghost" onclick="retryLog(${l._idx})"><svg><use href="#i-refresh"/></svg>재시도</button>`)
+        : ''}</div>
     </div>`;
-  }).join('') || `<div style="padding:30px;text-align:center;color:#5d6579;font-size:12.5px">${logRange==='today' ? '오늘 발행 로그가 아직 없어요.' : '이 기간에는 발행 로그가 없어요.'}</div>`;
+  }).join('') || `<div style="padding:30px;text-align:center;color:#5d6579;font-size:12.5px">${logFilter==='fail' ? '실패한 발행이 없어요.' : logFilter==='ok' ? '성공한 발행이 없어요.' : (logRange==='today' ? '오늘 발행 로그가 아직 없어요.' : '이 기간에는 발행 로그가 없어요.')}</div>`;
+}
+/* 실패 발행 재시도 — 연결돼 있으면 백엔드에 요청하고, 아니면 로컬에 요청 표시만 남긴다 */
+async function retryLog(idx){
+  const l = (state.logs || [])[idx];
+  if(!l || l.ok || l.retry) return;
+  if(API.configured() && API.token){
+    try{
+      await API.call('retryLog', {ts: l.ts || l.time || '', accountName: l.acct || '', productName: l.product || ''});
+    }catch(err){
+      toast('재시도 요청 실패: ' + err.message);
+      return;
+    }
+    l.retry = true; save(); renderLogs();
+    toast('재시도를 요청했어요 · 다음 엔진 주기에 다시 발행돼요');
+  } else {
+    l.retry = true; save(); renderLogs();
+    toast('재시도 요청으로 표시했어요 · 백엔드 연결 시 전송돼요');
+  }
 }
 async function testGas(){
   const url = $('#gasUrl').value.trim();
@@ -1934,15 +2413,24 @@ async function syncBackend(){
     if(Array.isArray(data.accounts) && data.accounts.length){
       const today = isoToday(); const counts = {};
       (data.logs||[]).forEach(l=>{ if(String(l.status)==='성공' && String(l.ts||'').slice(0,10)===today) counts[l.accountNo]=(counts[l.accountNo]||0)+1; });
-      state.accounts = data.accounts.slice(0,5).map(a=>({
-        id:a.no, no:a.no, name:a.name || ('계정 '+a.no),
-        handle:'@' + (a.userId || ('account'+a.no)),
-        status:(tokenOk(a.tokenStatus)?'connected':'pending'),
-        active:!(a.active===false || a.active===0 || String(a.active).toLowerCase()==='false'),
-        goal:Number(a.goal||7), today:counts[a.no]||0,
-        from:a.start||'08:00', to:a.end||'23:00', variant:a.variant||'original',
-        next:'자동'
-      }));
+      state.accounts = data.accounts.slice(0,5).map(a=>{
+        /* 백엔드가 페르소나·토큰 만료를 안 주면 이 브라우저에 저장된 값을 지우지 않는다 */
+        const prev = (state.accounts || []).find(x=>String(x.no || x.id) === String(a.no));
+        const parsedPersonas = Array.isArray(a.personas)
+          ? a.personas.map(s=>String(s).trim()).filter(Boolean)
+          : String(a.personas || '').split(',').map(s=>s.trim()).filter(Boolean);
+        return {
+          id:a.no, no:a.no, name:a.name || ('계정 '+a.no),
+          handle:'@' + (a.userId || ('account'+a.no)),
+          status:(tokenOk(a.tokenStatus)?'connected':'pending'),
+          active:!(a.active===false || a.active===0 || String(a.active).toLowerCase()==='false'),
+          goal:Number(a.goal||7), today:counts[a.no]||0,
+          from:a.start||'08:00', to:a.end||'23:00', variant:a.variant||'original',
+          personas: parsedPersonas.length ? parsedPersonas : (prev && Array.isArray(prev.personas) ? prev.personas : []),
+          tokenExp: a.tokenExp || a.tokenExpires || (prev ? (prev.tokenExp || '') : ''),
+          next:'자동'
+        };
+      });
       state.todayDate = today;   /* 이 발행 수치가 '오늘' 것임을 함께 기억 */
     }
     if(Array.isArray(data.logs)){
@@ -1951,12 +2439,20 @@ async function syncBackend(){
         snip:cleanText(l.text||'').split('\n')[0].slice(0,60), link:(l.postUrl||'').replace(/^https?:\/\//,''),
         ok:String(l.status)==='성공', err:l.note}));
     }
-    save(); renderRec(); renderPool(); renderAccounts(); renderLogs();
+    const syncNow = new Date();
+    state.lastSync = pad2(syncNow.getHours()) + ':' + pad2(syncNow.getMinutes());
+    save(); renderRec(); renderPool(); renderAccounts(); renderLogs(); renderQueue(); updateSyncMeta();
+    loadPerformance();
     $('#gasStatus').className='status-badge ok'; $('#gasStatus').textContent='연결됨';
     const demo = $('#demoPill'); if(demo){ demo.className='pill live'; demo.innerHTML='<svg><use href="#i-shield"/></svg>실시간 연결'; }
   }catch(err){
     toast('백엔드 동기화 실패: ' + err.message);
   }
+}
+
+function updateSyncMeta(){
+  const el = $('#syncMeta');
+  if(el) el.textContent = '마지막 동기화 ' + (state.lastSync || '-');
 }
 
 /* ---------- boot ---------- */
@@ -1969,11 +2465,15 @@ function boot(){
   $('#gasToken').value = store.get('tc.token') || '';
   $('#disclosure').value = state.disclosure;
   if(!state.todayDate){ state.todayDate = isoToday(); save(); }   /* 데모 수치도 오늘 날짜로만 인정 */
-  renderRec(); renderPool(); renderAccounts(); renderStyles(); renderLogs(); buildPreview();
+  renderRec(); renderPool(); renderAccounts(); renderStyles(); renderLogs(); renderQueue(); renderPerf(); buildPreview();
+  updateSyncMeta();
   if(API.configured()){ $('#gasStatus').className='status-badge ok'; $('#gasStatus').textContent='연결됨'; }
   syncBackend();
+  loadPerformance();
   /* 자정을 넘겨도 '오늘 발행 0건'·'다음 발행'이 바로 맞아떨어지도록 1분마다 다시 계산 */
   setInterval(()=>{ if(!document.hidden) renderStats(); }, 60000);
+  /* 백엔드가 연결돼 있으면 5분마다 자동 동기화 */
+  setInterval(()=>{ if(!document.hidden && API.configured() && API.token) syncBackend(); }, 5 * 60 * 1000);
 }
 boot();
 </script>
