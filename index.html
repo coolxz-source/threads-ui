@@ -563,6 +563,8 @@
     .pool-head{display:none}
     .pool-row{grid-template-columns:34px minmax(0,1fr) 80px;gap:9px;padding:12px}
     .pool-row .col-status,.pool-row .col-mid{display:none}
+    .pool-head{display:none}
+    .pool-row{grid-template-columns:26px 40px minmax(0,1fr) auto;gap:9px;padding:12px 10px}
     .log-head{display:none}
     .log-row{grid-template-columns:1fr auto;gap:4px 10px;padding:11px 12px}
     .log-row .log-snip{grid-column:1/-1}
@@ -644,10 +646,10 @@
         <svg class="ic"><use href="#i-fire"/></svg>오늘의 추천<span class="nav-badge" id="navRecCount">5</span>
       </button>
       <button class="nav-btn" data-tab="pool">
-        <svg class="ic"><use href="#i-box"/></svg>상품 풀<span class="nav-badge neutral" id="navPoolCount">12</span>
+        <svg class="ic"><use href="#i-box"/></svg>작업 목록<span class="nav-badge neutral" id="navPoolCount">12</span>
       </button>
       <button class="nav-btn" data-tab="queue">
-        <svg class="ic"><use href="#i-clock"/></svg>작업 목록<span class="nav-badge neutral" id="navQueueCount">0</span>
+        <svg class="ic"><use href="#i-clock"/></svg>대기 목록<span class="nav-badge neutral" id="navQueueCount">0</span>
       </button>
       <button class="nav-btn" data-tab="accounts">
         <svg class="ic"><use href="#i-users"/></svg>계정 관리<span class="nav-badge neutral" id="navAcctCount">-</span>
@@ -729,7 +731,7 @@
       <div class="section-head">
         <div>
           <div class="section-title"><span class="emoji">🔥</span>터진 스레드 추천 <span class="count-chip" id="recCountChip">5</span></div>
-          <div class="section-desc">마음에 드는 카드를 작업 목록에 담고, 작업 목록 탭에서 발행 시작을 누르면 올라가요.</div>
+          <div class="section-desc">마음에 드는 카드를 작업 목록에 담고, 대기 목록 탭에서 발행 시작을 누르면 올라가요.</div>
         </div>
         <span class="pill">정렬 · 반응 높은 순</span>
       </div>
@@ -738,7 +740,7 @@
 
       <div class="rec-tip">
         <svg><use href="#i-shield"/></svg>
-        <div>추천은 매일 07:00에 자동 수집돼요. 담긴 상품은 <b style="color:#c8cede">상품 풀 → 계정별 랜덤 선택 → 쿠파스 링크 · 후킹 문구 생성 → 첫 댓글</b>까지 자동으로 이어집니다. 패스한 글은 다시 추천되지 않아요.</div>
+        <div>추천은 매일 07:00에 자동 수집돼요. 담긴 상품은 <b style="color:#c8cede">작업 목록 → 계정별 랜덤 선택 → 쿠파스 링크 · 후킹 문구 생성 → 첫 댓글</b>까지 자동으로 이어집니다. 패스한 글은 다시 추천되지 않아요.</div>
       </div>
     </section>
 
@@ -746,7 +748,7 @@
     <section class="tab-panel" id="tab-pool">
       <div class="section-head">
         <div>
-          <div class="section-title"><span class="emoji">📦</span>상품 풀 <span class="count-chip" id="poolCountChip">12</span></div>
+          <div class="section-title"><span class="emoji">📦</span>작업 목록 <span class="count-chip" id="poolCountChip">12</span></div>
           <div class="section-desc">스레드 링크만 넣으면 영상 · 본문 · 쿠팡 링크를 자동으로 읽어옵니다.</div>
         </div>
         <button class="btn sm ghost" onclick="clearPoolAll()"><svg><use href="#i-trash"/></svg>전체 삭제</button>
@@ -934,7 +936,7 @@
     <section class="tab-panel" id="tab-queue">
       <div class="section-head">
         <div>
-          <div class="section-title"><span class="emoji">🗓️</span>작업 목록 <span class="count-chip" id="queueCountChip">0</span></div>
+          <div class="section-title"><span class="emoji">🗓️</span>대기 목록 <span class="count-chip" id="queueCountChip">0</span></div>
           <div class="section-desc">담은 추천과 활성 상품이 어떤 계정으로 언제 올라갈지 미리 보여줘요.</div>
         </div>
         <button class="btn sm ghost" onclick="renderQueue(); toast('발행 예정을 다시 계산했어요')"><svg><use href="#i-refresh"/></svg>예정 다시 계산</button>
@@ -1033,7 +1035,7 @@
 <nav class="mobile-nav" id="mobileNav">
   <button class="active" data-tab="recommend"><svg class="ic"><use href="#i-fire"/></svg>추천<span class="m-badge">4</span></button>
   <button data-tab="pool"><svg class="ic"><use href="#i-box"/></svg>상품풀</button>
-  <button data-tab="queue"><svg class="ic"><use href="#i-clock"/></svg>작업</button>
+  <button data-tab="queue"><svg class="ic"><use href="#i-clock"/></svg>대기</button>
   <button data-tab="accounts"><svg class="ic"><use href="#i-users"/></svg>계정</button>
   <button data-tab="copy"><svg class="ic"><use href="#i-pen"/></svg>문구</button>
   <button data-tab="logs"><svg class="ic"><use href="#i-log"/></svg>로그</button>
@@ -1092,7 +1094,7 @@
     <div class="modal-head">
       <div>
         <div class="modal-title">상품 수정</div>
-        <div class="modal-sub">고친 내용은 상품 풀 시트에도 바로 반영돼요.</div>
+        <div class="modal-sub">고친 내용은 작업 목록 시트에도 바로 반영돼요.</div>
       </div>
       <button class="close" onclick="closeEdit()"><svg width="15" height="15"><use href="#i-x"/></svg></button>
     </div>
@@ -1406,8 +1408,8 @@ function toast(msg){
 /* ---------- navigation ---------- */
 const TITLES = {
   recommend:['오늘의 <span class="accent">추천</span> 스레드','오늘의 추천'],
-  pool:['상품 <span class="accent">풀</span>','상품 풀'],
-  queue:['작업 <span class="accent">목록</span>','작업 목록'],
+  pool:['작업 <span class="accent">목록</span>','작업 목록'],
+  queue:['대기 <span class="accent">목록</span>','대기 목록'],
   accounts:['계정 <span class="accent">관리</span>','계정 관리'],
   copy:['문구 · <span class="accent">후킹</span>','문구 · 후킹'],
   logs:['발행 <span class="accent">로그</span>','발행 로그'],
@@ -1713,7 +1715,7 @@ async function saveProduct(){
   const inBatch = new Set();
   for(const u of threads){
     if(inPool.has(normUrl(u)) || inBatch.has(normUrl(u))){
-      return toast('이미 상품 풀에 있는 스레드 링크예요 · 중복 추가를 막았어요');
+      return toast('이미 작업 목록에 있는 스레드 링크예요 · 중복 추가를 막았어요');
     }
     inBatch.add(normUrl(u));
   }
@@ -1943,7 +1945,7 @@ function queueItems(){
   const items = [];
   taken.forEach(r=>items.push({key:'rec:'+r.id, kind:'추천 담기', rec:true, recId:r.id, name:r.product}));
   state.products.filter(p=>p.active && !takenNames.has(p.name))
-    .forEach(p=>items.push({key:'prod:'+p.id, kind:'상품 풀', rec:false, prodId:p.id, name:p.name}));
+    .forEach(p=>items.push({key:'prod:'+p.id, kind:'작업 목록', rec:false, prodId:p.id, name:p.name}));
   /* state.queue(키 배열)로 순서 유지 — 새 항목은 뒤에 붙이고, 사라진 항목은 버린다 */
   const byKey = {};
   items.forEach(it=>{ byKey[it.key] = it; });
@@ -2021,7 +2023,7 @@ function adoptPublishState(queue){
 }
 function startPublish(){
   const items = queueItems();
-  if(!items.length){ toast('작업 목록이 비어 있어요. 먼저 추천을 담아 주세요'); return; }
+  if(!items.length){ toast('대기 목록이 비어 있어요. 먼저 추천을 담아 주세요'); return; }
   /* 시작할 때마다 순서를 새로 섞는다 (Fisher-Yates) */
   const keys = items.map(it=>it.key);
   for(let i = keys.length - 1; i > 0; i--){
@@ -2144,7 +2146,7 @@ function renderQueue(){
         <button class="btn sm ghost" onclick="cancelQueueItem('${it.key}')">취소</button>
       </div>
     </div>`;
-  }).join('') || `<div class="empty-note" style="border:1px dashed var(--line);border-radius:16px;padding:26px;text-align:center;color:var(--dim);font-size:13px">작업 목록이 비어 있어요. 추천을 담거나 상품을 활성화하면 여기에 쌓여요.</div>`;
+  }).join('') || `<div class="empty-note" style="border:1px dashed var(--line);border-radius:16px;padding:26px;text-align:center;color:var(--dim);font-size:13px">대기 목록이 비어 있어요. 추천을 담거나 상품을 활성화하면 여기에 쌓여요.</div>`;
   const chip = $('#queueCountChip'); if(chip) chip.textContent = items.length;
   const nav = $('#navQueueCount'); if(nav) nav.textContent = items.length;
   renderPublishCtl(); updateSelBars();
@@ -2179,7 +2181,7 @@ async function cancelQueueItem(key){
   await removeFromQueue(key);
   selQueue.delete(key);
   save(); renderRec(); renderPool(); renderQueue(); pushQueue();
-  toast(isRec ? '담기를 해제했어요 · 추천 대기로 돌아갔어요' : '상품을 중지했어요 · 상품 풀에서 다시 켤 수 있어요');
+  toast(isRec ? '담기를 해제했어요 · 추천 대기로 돌아갔어요' : '상품을 중지했어요 · 작업 목록에서 다시 켤 수 있어요');
 }
 
 /* ---------- 선택 · 전체 삭제 (작업 목록 / 상품 풀) ---------- */
@@ -2195,7 +2197,7 @@ function clearQueueSel(){ selQueue.clear(); renderQueue(); }
 async function deleteSelectedQueue(){
   const keys = queueItems().map(it=>it.key).filter(k=>selQueue.has(k));
   if(!keys.length){ toast('선택한 항목이 없어요'); return; }
-  if(!confirm('선택한 ' + keys.length + '개를 작업 목록에서 뺄까요?\n담은 추천은 대기로 돌아가고, 상품은 중지돼요. (지워지는 건 아니에요)')) return;
+  if(!confirm('선택한 ' + keys.length + '개를 대기 목록에서 뺄까요?\n담은 추천은 대기로 돌아가고, 상품은 중지돼요. (지워지는 건 아니에요)')) return;
   for(const key of keys){ await removeFromQueue(key); selQueue.delete(key); }
   if(!queueItems().length && state.publishOn){ state.publishOn = false; state.publishStartedAt = ''; }
   save(); renderRec(); renderPool(); renderQueue(); pushQueue();
@@ -2203,13 +2205,13 @@ async function deleteSelectedQueue(){
 }
 async function clearQueueAll(){
   const items = queueItems();
-  if(!items.length){ toast('작업 목록이 이미 비어 있어요'); return; }
-  if(!confirm('작업 목록 ' + items.length + '개를 전부 비울까요?\n담은 추천은 대기로 돌아가고, 상품은 중지돼요. (지워지는 건 아니에요)')) return;
+  if(!items.length){ toast('대기 목록이 이미 비어 있어요'); return; }
+  if(!confirm('대기 목록 ' + items.length + '개를 전부 비울까요?\n담은 추천은 대기로 돌아가고, 상품은 중지돼요. (지워지는 건 아니에요)')) return;
   for(const it of items){ await removeFromQueue(it.key); }
   selQueue.clear();
   state.publishOn = false; state.publishStartedAt = '';
   save(); renderRec(); renderPool(); renderQueue(); pushQueue();
-  toast('작업 목록을 전부 비우고 발행을 정지했어요');
+  toast('대기 목록을 전부 비우고 발행을 정지했어요');
 }
 function togglePoolSel(id, on){ if(on) selPool.add(String(id)); else selPool.delete(String(id)); updateSelBars(); }
 function selectAllPool(){ poolVisibleRows().forEach(p=>selPool.add(String(p.id))); renderPool(); }
@@ -2231,8 +2233,8 @@ async function deleteSelectedPool(){
   toast('선택한 상품 ' + targets.length + '개를 삭제했어요');
 }
 async function clearPoolAll(){
-  if(!state.products.length){ toast('상품 풀이 이미 비어 있어요'); return; }
-  if(!confirm('상품 풀 ' + state.products.length + '개를 전부 삭제할까요?\n상품 자체가 지워져서 되돌릴 수 없어요.')) return;
+  if(!state.products.length){ toast('작업 목록이 이미 비어 있어요'); return; }
+  if(!confirm('작업 목록 ' + state.products.length + '개를 전부 삭제할까요?\n상품 자체가 지워져서 되돌릴 수 없어요.')) return;
   if(API.configured()){
     for(const p of [...state.products]){
       try { await API.call('deleteProduct', {id: p.id}); }
@@ -2241,7 +2243,7 @@ async function clearPoolAll(){
   }
   state.products = []; selPool.clear();
   save(); renderPool(); renderQueue(); pushQueue();
-  toast('상품 풀을 전부 삭제했어요');
+  toast('작업 목록을 전부 삭제했어요');
 }
 
 /* ---------- 실적 ---------- */
